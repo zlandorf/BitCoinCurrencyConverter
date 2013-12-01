@@ -5,8 +5,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -21,6 +24,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 
 public class MainActivity extends Activity implements OnItemSelectedListener {
@@ -111,8 +115,36 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 	}
 
 	private void refreshRates() {
-		new GetAllCryptoCurrencyRatesTask(this).execute();
-		new GetAllFiatRatesTask(this).execute();
+		
+		final ProgressDialog progressBar = new ProgressDialog(this);
+		final MainActivity activity = this;
+		
+		progressBar.setCancelable(false);
+		progressBar.setMessage("Retrieving rates from Kraken ...");
+		progressBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+		progressBar.show();
+		progressBar.setProgress(0);
+		progressBar.setMax(100);
+		
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					AsyncTask<Void, Void, Boolean> cryptoTask = new GetAllCryptoCurrencyRatesTask(activity).execute();
+					AsyncTask<Void, Void, Boolean> fiatTask = new GetAllFiatRatesTask(activity).execute();
+					
+					cryptoTask.get();
+					progressBar.setProgress(70);
+					fiatTask.get();
+					progressBar.setProgress(100);
+					progressBar.dismiss();
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
 		
 		rateMap.put("BTCBTC", 1d);
 		rateMap.put("LTCLTC", 1d);
