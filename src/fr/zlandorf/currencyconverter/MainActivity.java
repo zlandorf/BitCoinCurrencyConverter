@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -15,16 +14,15 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.Spinner;
 
 public class MainActivity extends Activity implements OnItemSelectedListener {
@@ -108,10 +106,8 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 			}
 		});
 
-		textTop.clearFocus();
-		textBot.clearFocus();
-		refreshButton.requestFocus();
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+		
 	}
 
 	private void refreshRates() {
@@ -138,11 +134,13 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 					progressBar.setProgress(70);
 					fiatTask.get();
 					progressBar.setProgress(100);
-					progressBar.dismiss();
 					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+				
+				progressBar.dismiss();
+				ratesInitialised = true;
 			}
 		}).start();
 		
@@ -300,8 +298,6 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 
 	private void initRateMap() {
 		refreshRates();
-		
-		ratesInitialised = true;
 		
 		listTop.setClickable(true);
 		listBot.setClickable(true);
