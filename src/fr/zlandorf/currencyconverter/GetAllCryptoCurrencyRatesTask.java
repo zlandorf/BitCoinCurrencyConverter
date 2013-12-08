@@ -99,7 +99,7 @@ public class GetAllCryptoCurrencyRatesTask extends AsyncTask<Void, Integer, Bool
 			String result = null;
 
 			while ((input = br.readLine()) != null) {
-				buffer.append(input);
+				buffer.append(input+"\n");
 			}
 			br.close();
 			result = buffer.toString();

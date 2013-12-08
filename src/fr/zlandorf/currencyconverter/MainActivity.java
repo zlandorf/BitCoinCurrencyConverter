@@ -178,7 +178,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 	
 	public void onFiatRetrieved(boolean isSuccess) {
 		if (!isSuccess) {
-			showErrorDialog("Failed to retrieve USD/EUR rate. Please make sure you are connected to the internet.");
+			showErrorDialog("Failed to retrieve fiat rates. Please make sure you are connected to the internet.");
 		}
 		ratesInitialised = true;
 		update();
