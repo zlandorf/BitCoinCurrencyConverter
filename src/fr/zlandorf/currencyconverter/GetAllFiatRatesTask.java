@@ -2,16 +2,17 @@ package fr.zlandorf.currencyconverter;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import android.os.AsyncTask;
 
 public class GetAllFiatRatesTask extends AsyncTask<Void, Void, Boolean> {
 
-	public static String USDEUR_URL = "http://www.webservicex.net/CurrencyConvertor.asmx/ConversionRate?FromCurrency=USD&ToCurrency=EUR";
+	public static String USDEUR_URL = "https://www.google.com/finance/converter?a=1&from=USD&to=EUR";
 	
 	MainActivity activity;
 	
@@ -22,17 +23,17 @@ public class GetAllFiatRatesTask extends AsyncTask<Void, Void, Boolean> {
 	@Override
 	protected Boolean doInBackground(Void ... params) {
 
-		URL httpUrl;
+		URL httpsUrl;
 		try {
-			httpUrl = new URL(USDEUR_URL);
-			HttpURLConnection conn = (HttpURLConnection) httpUrl.openConnection();
+			httpsUrl = new URL(USDEUR_URL);
+			HttpsURLConnection conn = (HttpsURLConnection) httpsUrl.openConnection();
 
 			conn.setRequestMethod("GET");
 			conn.setRequestProperty("User-agent", "Java client");
 
 			int responseCode = conn.getResponseCode();
 			if (responseCode != 200) {
-				throw new Exception("Failed to connect to "+httpUrl);
+				throw new Exception("Failed to connect to "+httpsUrl);
 			}
 
 
@@ -61,11 +62,11 @@ public class GetAllFiatRatesTask extends AsyncTask<Void, Void, Boolean> {
 
 	private void parseResult(String result) throws Exception {
 		
-		Pattern pattern = Pattern.compile("<double(.*?)>(.*?)</double>");
+		Pattern pattern = Pattern.compile("<span class=bld>([0-9.]*)\\s+\\w+</span>");
 		Matcher matcher = pattern.matcher(result);
 		
 		while (matcher.find()) {
-			double rate = Double.parseDouble(matcher.group(2));
+			double rate = Double.parseDouble(matcher.group(1));
 			activity.setRate("USDEUR", rate);
 		}
 		

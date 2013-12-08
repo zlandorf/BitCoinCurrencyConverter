@@ -37,6 +37,7 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 
 	private Spinner listTop = null;
 	private Spinner listBot = null;
+	private ArrayAdapter<String> selectableCurrencyListAdapter = null;
 
 	private EditText textTop = null;
 	private EditText textBot = null;
@@ -48,9 +49,9 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 
 	private boolean ratesInitialised = false;
 
-	Map<String, Double> rateMap = null;
+	private Map<String, Double> rateMap = null;
 	
-	List<String> ratesList = null;
+	private List<String> ratesList = null;
 	private ListView ratesListView = null;
 	private ArrayAdapter<String> ratesListAdapter = null;
 
@@ -60,10 +61,6 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 		setContentView(R.layout.activity_main);
 
 		currencyList = new ArrayList<String>();
-		currencyList.add("EUR");
-		currencyList.add("USD");
-		currencyList.add("BTC");
-		currencyList.add("LTC");
 
 		listTop = (Spinner) findViewById(R.id.spinnerTop);
 		listBot = (Spinner) findViewById(R.id.spinnerBot);
@@ -80,12 +77,12 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 		textTop.setOnFocusChangeListener(new FocusChangeListener(textTop));
 		textBot.setOnFocusChangeListener(new FocusChangeListener(textBot));
 
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, currencyList);
-		adapter.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);
+		selectableCurrencyListAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, currencyList);
+		selectableCurrencyListAdapter.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);
 
-		listTop.setAdapter(adapter);
-		listBot.setAdapter(adapter);
-		listBot.setSelection(2);
+		listTop.setAdapter(selectableCurrencyListAdapter);
+		listBot.setAdapter(selectableCurrencyListAdapter);
+//		listBot.setSelection(2);
 
 		listTop.setOnItemSelectedListener(this);
 		listBot.setOnItemSelectedListener(this);
@@ -309,7 +306,10 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 	public void setRate(final String pair, final double rate) {
 		rateMap.put(pair, rate);
 		
-		String inversedPair = pair.substring(3, 6) + pair.substring(0, 3);
+		final String fromCurrency = pair.substring(0, 3);
+		final String toCurrency = pair.substring(3, 6);
+		
+		String inversedPair = toCurrency + fromCurrency;
 		double inversedRate = 0;
 		if (rate != 0) {
 			inversedRate = 1 / rate;
@@ -319,8 +319,25 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
+				// If the currency doesn't exist in the spinner add it
+				boolean selectableCurrencyAdded = false;
+				if (!currencyList.contains(fromCurrency)) {
+					currencyList.add(fromCurrency);
+					selectableCurrencyAdded = true;
+				}
 				
-				String newString = pair.substring(0, 3) + "/" + pair.substring(3, 6) + " : " + rate;
+				if (!currencyList.contains(toCurrency)) {
+					currencyList.add(toCurrency);
+					selectableCurrencyAdded = true;
+				}
+				
+				if (selectableCurrencyAdded) {
+					selectableCurrencyListAdapter.notifyDataSetChanged();
+				}
+				
+				
+				// Add the new rate to the rates List
+				String newString = fromCurrency + "/" + toCurrency + " : " + rate;
 				
 				boolean found = false;
 				for (int i = 0; i < ratesList.size(); i++) {
