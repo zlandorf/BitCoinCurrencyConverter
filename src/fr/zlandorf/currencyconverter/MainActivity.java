@@ -1,13 +1,17 @@
 package fr.zlandorf.currencyconverter;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.AsyncTask.Status;
 import android.os.Bundle;
@@ -28,29 +32,25 @@ import android.widget.Spinner;
 
 public class MainActivity extends Activity implements OnItemSelectedListener {
 
-	private List<String> currencyList = null;
-
-	private boolean computeTop = false;
-	private boolean computeBot = false;
-
-	private double amountTop = 0.0;
-	private double amountBot = 0.0;
+	private List<String> topCurrencyList = null;
+	private List<String> bottomCurrencyList = null;
 
 	private Spinner listTop = null;
 	private Spinner listBot = null;
-	private ArrayAdapter<String> selectableCurrencyListAdapter = null;
+	private ArrayAdapter<String> bottomSelectableCurrencyListAdapter = null;
+	private ArrayAdapter<String> topSelectableCurrencyListAdapter = null;
 
 	private EditText textTop = null;
 	private EditText textBot = null;
 
 	private TextChangedListener topChangeListener = null;
-	private TextChangedListener botChangeListener = null;
 	
 	private Button refreshButton = null;
 
 	private boolean ratesInitialised = false;
 
 	private Map<String, Double> rateMap = null;
+	private Map<String, List<String>> availableConversionsMap = null;
 	
 	private List<String> ratesList = null;
 	private ListView ratesListView = null;
@@ -58,38 +58,86 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 	
 	private AsyncTask<Void, Integer, Boolean> cryptoTask = null;
 	private AsyncTask<Void, Integer, Boolean> fiatTask = null;
+	
+	private DecimalFormat decimalFormatter = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		currencyList = new ArrayList<String>();
+		topCurrencyList = new ArrayList<String>();
+		bottomCurrencyList = new ArrayList<String>();
+		
+		decimalFormatter = new DecimalFormat("#,##0.0####", new DecimalFormatSymbols(Locale.ENGLISH));
 
 		listTop = (Spinner) findViewById(R.id.spinnerTop);
 		listBot = (Spinner) findViewById(R.id.spinnerBot);
 
 		textTop = (EditText) findViewById(R.id.AmountTop);
 		textBot = (EditText) findViewById(R.id.AmountBot);
+//		textBot.setEnabled(false);
+		textBot.setFocusable(false);
+		textBot.setClickable(false);
 
-		topChangeListener = new TextChangedListener(textTop);
-		botChangeListener = new TextChangedListener(textBot);
-
+		topChangeListener = new TextChangedListener();
 		textTop.addTextChangedListener(topChangeListener);
-		textBot.addTextChangedListener(botChangeListener);
+		textTop.setOnFocusChangeListener(new FocusChangeListener());
+
+		topSelectableCurrencyListAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, topCurrencyList);
+		topSelectableCurrencyListAdapter.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);
 		
-		textTop.setOnFocusChangeListener(new FocusChangeListener(textTop));
-		textBot.setOnFocusChangeListener(new FocusChangeListener(textBot));
+		bottomSelectableCurrencyListAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, bottomCurrencyList);
+		bottomSelectableCurrencyListAdapter.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);
 
-		selectableCurrencyListAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, currencyList);
-		selectableCurrencyListAdapter.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);
+		listTop.setAdapter(topSelectableCurrencyListAdapter);
+		listBot.setAdapter(bottomSelectableCurrencyListAdapter);
 
-		listTop.setAdapter(selectableCurrencyListAdapter);
-		listBot.setAdapter(selectableCurrencyListAdapter);
-//		listBot.setSelection(2);
+		listTop.setOnItemSelectedListener(new OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> adapterView, View view, int selectedIndex, long l) {
+				if (adapterView == null) return;
+				
+				// Get the previous selected currency from the bottom spinner
+				int botSelectionPosition = listBot.getSelectedItemPosition();
+				String botSelected = "";
+				
+				if (botSelectionPosition != Spinner.INVALID_POSITION) {
+					botSelected = bottomCurrencyList.get(botSelectionPosition);
+				}
+					
+				String topSelectedCurrency = topCurrencyList.get(selectedIndex);
+				
+				bottomCurrencyList.clear();
+				bottomCurrencyList.addAll(availableConversionsMap.get(topSelectedCurrency));
+				bottomSelectableCurrencyListAdapter.notifyDataSetChanged();
+				
+				listBot.setSelection(0);
+				// If the new top currency has a possible conversion towards
+				// the previous bottom selected currency, then we keep that conversion
+				for (int i = 0; i < bottomCurrencyList.size(); i++) {
+					if (bottomCurrencyList.get(i).equals(botSelected)) {
+						listBot.setSelection(i);
+					}
+				}
+				update();
+			}
 
-		listTop.setOnItemSelectedListener(this);
-		listBot.setOnItemSelectedListener(this);
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+			}
+		});
+		
+		listBot.setOnItemSelectedListener(new OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> adapterView, View view, int selectedIndex, long l) {
+				update();
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+			}
+		});
 		
 		ratesListView = (ListView) findViewById(R.id.ratesList);
 		ratesList =  Collections.synchronizedList(new ArrayList<String>());
@@ -97,34 +145,43 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 		ratesListView.setAdapter(ratesListAdapter);
 		
 		rateMap = new ConcurrentHashMap<String, Double>();
-		initRateMap();
+		availableConversionsMap = new ConcurrentHashMap<String, List<String>>();
 		
 		refreshButton = (Button) findViewById(R.id.refreshButton);
 		refreshButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				refreshRates();
+				update();
 			}
 		});
 
 		getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 		
+		refreshRates();
 	}
 
+	@Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+	}
+	
 	public void onCryptoRetrieved(boolean isSuccess) {
 		if (!isSuccess) {
 			showErrorDialog("Failed to retrieve rates from Kraken. Please make sure you are connected to the internet.");
-		} else {
-			ratesInitialised = true;
+		}
+
+		if (fiatTask == null || fiatTask .getStatus() == Status.FINISHED) {
+			fiatTask = new GetAllFiatRatesTask(this).execute();
 		}
 	}
 	
 	public void onFiatRetrieved(boolean isSuccess) {
 		if (!isSuccess) {
 			showErrorDialog("Failed to retrieve USD/EUR rate. Please make sure you are connected to the internet.");
-		} else {
-			ratesInitialised = true;
 		}
+		ratesInitialised = true;
+		update();
 	}
 	
 	private void showErrorDialog(String message) {
@@ -137,12 +194,11 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 	}
 	
 	private void refreshRates() {
+		// The refresh rate first calls the cryptoTask
+		// which calls the fiat task once it's 
+		
 		if (cryptoTask == null || cryptoTask.getStatus() == Status.FINISHED) {
 			cryptoTask = new GetAllCryptoCurrencyRatesTask(this).execute();
-		}
-
-		if (fiatTask == null || fiatTask .getStatus() == Status.FINISHED) {
-			fiatTask = new GetAllFiatRatesTask(this).execute();
 		}
 	}
 
@@ -153,52 +209,42 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 		return true;
 	}
 
-	private String getSelectedCurrency(Spinner list) {
-		return currencyList.get(list.getSelectedItemPosition());
-	}
-
 	private double getTopBotExchangeRate() {
-		String key = getSelectedCurrency(listTop) + getSelectedCurrency(listBot);
-		if (rateMap.containsKey(key)) {
-			return rateMap.get(key);
+		String from = "";
+		String to 	= "";
+		
+		int selectedTop = listTop.getSelectedItemPosition();
+		if (selectedTop != Spinner.INVALID_POSITION) {
+			from = topCurrencyList.get(selectedTop);
 		}
-		return 1;
+		
+		int selectedBot = listBot.getSelectedItemPosition();
+		if (selectedBot != Spinner.INVALID_POSITION) {
+			to = bottomCurrencyList.get(selectedBot);
+		}
+		
+		if (!from.equals("") && !to.equals("")) {
+			String key = from + to;
+			if (rateMap.containsKey(key)) {
+				return rateMap.get(key);
+			}
+		}
+		return 0;
 	}
 
-	private String getFormattedDecimal(double amount) {
-//		return  String.format(Locale.ENGLISH, "%,.05f", amount);
-		return String.valueOf(amount);
+	private String getFormattedDecimal(double value) {
+		return  decimalFormatter.format(value);
 	}
 	
 	private void update() {
-
 		double topBotExchangeRate = getTopBotExchangeRate();
-		
-		if (computeTop) {
-
-			if (topBotExchangeRate != 0) {
-				amountTop = amountBot * (1 / topBotExchangeRate);
-			} else {
-				amountTop = 0;
-			}
-
-			textTop.removeTextChangedListener(topChangeListener);
-			textTop.setText(getFormattedDecimal(amountTop));
-			textTop.addTextChangedListener(topChangeListener);
-
-			computeTop = false;
+		double amountTop = 0.0;
+		String amountTopString = textTop.getText().toString();
+		if (amountTopString != null && !amountTopString.equals("")) {
+			amountTop = Double.parseDouble(amountTopString);
 		}
-
-		if (computeBot) {
-
-			amountBot = amountTop * topBotExchangeRate;
-
-			textBot.removeTextChangedListener(botChangeListener);
-			textBot.setText(getFormattedDecimal(amountBot));
-			textBot.addTextChangedListener(botChangeListener);
-
-			computeBot = false;
-		}
+		double amountBot = amountTop * topBotExchangeRate;
+		textBot.setText(getFormattedDecimal(amountBot));
 	}
 
 	@Override
@@ -206,11 +252,6 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 		if (adapterView == null) return;
 		
 		if (ratesInitialised) {
-			if (adapterView.getId() == listTop.getId()) {
-				computeTop = true;
-			} else if (adapterView.getId() == listBot.getId()) {
-				computeBot = true;
-			}
 			update();
 		}
 	}
@@ -221,40 +262,9 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 
 	private class TextChangedListener implements TextWatcher {
 
-		private EditText editText;
-		private boolean editing = false;
-
-		public TextChangedListener(EditText editText) {
-			this.editText = editText;
-		}
-
 		@Override
 		public void afterTextChanged(Editable s) {
-			if (ratesInitialised) {
-				if (!editing) {
-					editing = true;
-					double amount = 0;
-					String text = s.toString();
-					text = text.replaceAll(",","");
-					
-					if (!text.equals("")) { 
-						amount = Double.parseDouble(text);
-					}
-
-					if (editText.getId() == textTop.getId()) {
-						amountTop = amount;
-						computeBot = true;
-					}
-
-					if (editText.getId() == textBot.getId()) {
-						amountBot = amount;
-						computeTop = true;
-					}
-
-					update();
-					editing = false;
-				}
-			}
+			update();
 		}
 
 		@Override
@@ -267,35 +277,31 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 		}
 	}
 
-
 	private class FocusChangeListener implements OnFocusChangeListener {
-
-		private EditText text = null;
-
-		public FocusChangeListener(EditText text) {
-			this.text = text;
-		}
-
 		@Override
 		public void onFocusChange(View v, boolean hasFocus) {
 			if (hasFocus) {
-				String textToStr = text.getText().toString();
+				String textToStr = textTop.getText().toString();
 				textToStr = textToStr.replaceAll(",","");
 				if (!textToStr.equals("") && Double.parseDouble(textToStr) == 0) {
-					text.setText("");
+					textTop.removeTextChangedListener(topChangeListener);
+					textTop.setText("");
+					textTop.addTextChangedListener(topChangeListener);
 				}
 			}
 		}
 	}
 
-	private void initRateMap() {
-		refreshRates();
+	private void addPossibleConversion(String from, String to) {
+		List<String> possibleConversions = null;
+		if (!availableConversionsMap.containsKey(from)) {
+			availableConversionsMap.put(from, new ArrayList<String>());
+		}
+		possibleConversions = availableConversionsMap.get(from);
 		
-		listTop.setClickable(true);
-		listBot.setClickable(true);
-		
-		textTop.setEnabled(true);
-		textBot.setEnabled(true);
+		if (!possibleConversions.contains(to)) {
+			possibleConversions.add(to);
+		}
 	}
 	
 	public void setRate(final String pair, final double rate) {
@@ -313,25 +319,24 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 		rateMap.put(fromCurrency+fromCurrency, 1d);
 		rateMap.put(toCurrency+toCurrency, 1d);
 		
+		addPossibleConversion(fromCurrency, toCurrency);
+		addPossibleConversion(toCurrency, fromCurrency);
+		addPossibleConversion(fromCurrency, fromCurrency);
+		addPossibleConversion(toCurrency, toCurrency);
+		
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				// If the currency doesn't exist in the spinner add it
-				boolean selectableCurrencyAdded = false;
-				if (!currencyList.contains(fromCurrency)) {
-					currencyList.add(fromCurrency);
-					selectableCurrencyAdded = true;
+				if (!topCurrencyList.contains(fromCurrency)) {
+					topCurrencyList.add(fromCurrency);
+					topSelectableCurrencyListAdapter.notifyDataSetChanged();
 				}
 				
-				if (!currencyList.contains(toCurrency)) {
-					currencyList.add(toCurrency);
-					selectableCurrencyAdded = true;
+				if (!topCurrencyList.contains(toCurrency)) {
+					topCurrencyList.add(toCurrency);
+					topSelectableCurrencyListAdapter.notifyDataSetChanged();
 				}
-				
-				if (selectableCurrencyAdded) {
-					selectableCurrencyListAdapter.notifyDataSetChanged();
-				}
-				
 				
 				// Add the new rate to the rates List
 				String newString = fromCurrency + "/" + toCurrency + " : " + rate;
@@ -352,4 +357,5 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 			}
 		});
 	}
+	
 }

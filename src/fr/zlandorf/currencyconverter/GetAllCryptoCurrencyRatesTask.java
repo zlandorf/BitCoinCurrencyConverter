@@ -17,7 +17,7 @@ public class GetAllCryptoCurrencyRatesTask extends AsyncTask<Void, Integer, Bool
 
 	public static String CLOSED_ARRAY_STRING_START = "\"c\":[\"";
 	
-	public static String KRAKEN_URL = "https://api.kraken.com/0/public/Ticker?pair=BTCEUR,BTCLTC,XBTUSD,LTCEUR,LTCUSD,NMCEUR,EURXRP";
+	public static String KRAKEN_URL = "https://api.kraken.com/0/public/Ticker?pair=BTCEUR,BTCLTC,XBTUSD,LTCEUR,LTCUSD,NMCEUR,EURXRP,NMCUSD,USDXRP";
 	
 	/* The list of available pairs can be found here : 
 	 * https://api.kraken.com/0/public/AssetPairs
@@ -36,11 +36,16 @@ public class GetAllCryptoCurrencyRatesTask extends AsyncTask<Void, Integer, Bool
 		// with the pair name that is used in the app
 		pairMap.put("XLTCZEUR", "LTCEUR");
 		pairMap.put("XLTCZUSD", "LTCUSD");
+		
 		pairMap.put("XXBTXLTC", "BTCLTC");
 		pairMap.put("XXBTZEUR", "BTCEUR");
 		pairMap.put("XXBTZUSD", "BTCUSD");
+		
 		pairMap.put("XNMCZEUR", "NMCEUR");
-		pairMap.put("ZEURXXRP", "NMCEUR");
+		pairMap.put("XNMCZUSD", "NMCUSD");
+		
+		pairMap.put("ZEURXXRP", "EURXRP");
+		pairMap.put("ZUSDXXRP", "USDXRP");
 	}
 	
 	
@@ -57,7 +62,7 @@ public class GetAllCryptoCurrencyRatesTask extends AsyncTask<Void, Integer, Bool
 		progressBar.setMax(2);
 		progressBar.show();
 	}
-
+	
 	@Override
 	protected void onProgressUpdate(Integer... progress) {
 		super.onProgressUpdate(progress);
