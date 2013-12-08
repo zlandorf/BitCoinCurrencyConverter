@@ -7,8 +7,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
+import android.app.AlertDialog;
 import android.os.AsyncTask;
+import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -54,6 +55,9 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 	private List<String> ratesList = null;
 	private ListView ratesListView = null;
 	private ArrayAdapter<String> ratesListAdapter = null;
+	
+	private AsyncTask<Void, Integer, Boolean> cryptoTask = null;
+	private AsyncTask<Void, Integer, Boolean> fiatTask = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -107,50 +111,41 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 		
 	}
 
+	public void onCryptoRetrieved(boolean isSuccess) {
+		if (!isSuccess) {
+			showErrorDialog("Failed to retrieve rates from Kraken. Please make sure you are connected to the internet.");
+		} else {
+			ratesInitialised = true;
+		}
+	}
+	
+	public void onFiatRetrieved(boolean isSuccess) {
+		if (!isSuccess) {
+			showErrorDialog("Failed to retrieve USD/EUR rate. Please make sure you are connected to the internet.");
+		} else {
+			ratesInitialised = true;
+		}
+	}
+	
+	private void showErrorDialog(String message) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage(message);
+		builder.setTitle("Error");
+		
+		AlertDialog dialog = builder.create();
+		dialog.show();
+	}
+	
 	private void refreshRates() {
-		
-		final ProgressDialog progressBar = new ProgressDialog(this);
-		final MainActivity activity = this;
-		
-		progressBar.setCancelable(false);
-		progressBar.setMessage("Retrieving rates from Kraken ...");
-		progressBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-		progressBar.show();
-		progressBar.setProgress(0);
-		progressBar.setMax(100);
-		
-		new Thread(new Runnable() {
-			
-			@Override
-			public void run() {
-				try {
-					AsyncTask<Void, Void, Boolean> cryptoTask = new GetAllCryptoCurrencyRatesTask(activity).execute();
-					AsyncTask<Void, Void, Boolean> fiatTask = new GetAllFiatRatesTask(activity).execute();
-					
-					cryptoTask.get();
-					progressBar.setProgress(70);
-					fiatTask.get();
-					progressBar.setProgress(100);
-					
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				
-				progressBar.dismiss();
-				ratesInitialised = true;
-			}
-		}).start();
-		
-		rateMap.put("BTCBTC", 1d);
-		rateMap.put("LTCLTC", 1d);
-		rateMap.put("EUREUR", 1d);
-		rateMap.put("USDUSD", 1d);
+		if (cryptoTask == null || cryptoTask.getStatus() == Status.FINISHED) {
+			cryptoTask = new GetAllCryptoCurrencyRatesTask(this).execute();
+		}
+
+		if (fiatTask == null || fiatTask .getStatus() == Status.FINISHED) {
+			fiatTask = new GetAllFiatRatesTask(this).execute();
+		}
 	}
 
-	
-	
-	
-	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -315,6 +310,8 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 			inversedRate = 1 / rate;
 		}
 		rateMap.put(inversedPair, inversedRate);
+		rateMap.put(fromCurrency+fromCurrency, 1d);
+		rateMap.put(toCurrency+toCurrency, 1d);
 		
 		runOnUiThread(new Runnable() {
 			@Override
