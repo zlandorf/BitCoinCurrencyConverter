@@ -17,7 +17,7 @@ public class GetAllCryptoCurrencyRatesTask extends AsyncTask<Void, Integer, Bool
 
 	public static String CLOSED_ARRAY_STRING_START = "\"c\":[\"";
 	
-	public static String KRAKEN_URL = "https://api.kraken.com/0/public/Ticker?pair=BTCEUR,BTCLTC,XBTUSD,LTCEUR,LTCUSD,NMCEUR,EURXRP,NMCUSD,USDXRP";
+	public static String KRAKEN_URL = "https://api.kraken.com/0/public/Ticker?pair=XXBTZEUR,XXBTXLTC,XXBTZUSD,XLTCZEUR,XLTCZUSD,XXBTXNMC,XXBTXXRP";
 	
 	/* The list of available pairs can be found here : 
 	 * https://api.kraken.com/0/public/AssetPairs
@@ -128,5 +128,10 @@ public class GetAllCryptoCurrencyRatesTask extends AsyncTask<Void, Integer, Bool
 			activity.setRate(pair, rate);
 		}
 		
+	}
+	
+	public static void main(String[] args) {
+		GetAllCryptoCurrencyRatesTask task = new GetAllCryptoCurrencyRatesTask(null);
+		task.doInBackground();
 	}
 }
