@@ -17,7 +17,7 @@ public class GetAllCryptoCurrencyRatesTask extends AsyncTask<Void, Integer, Bool
 
 	public static String CLOSED_ARRAY_STRING_START = "\"c\":[\"";
 	
-	public static String KRAKEN_URL = "https://api.kraken.com/0/public/Ticker?pair=XXBTZEUR,XXBTXLTC,XXBTZUSD,XLTCZEUR,XLTCZUSD,XXBTXNMC,XXBTXXRP";
+	public static String KRAKEN_URL = "https://api.kraken.com/0/public/Ticker?pair=XXBTZEUR,XXBTXLTC,XXBTZUSD,XLTCZEUR,XLTCZUSD";
 	
 	/* The list of available pairs can be found here : 
 	 * https://api.kraken.com/0/public/AssetPairs
@@ -40,12 +40,6 @@ public class GetAllCryptoCurrencyRatesTask extends AsyncTask<Void, Integer, Bool
 		pairMap.put("XXBTXLTC", "BTCLTC");
 		pairMap.put("XXBTZEUR", "BTCEUR");
 		pairMap.put("XXBTZUSD", "BTCUSD");
-		
-		pairMap.put("XNMCZEUR", "NMCEUR");
-		pairMap.put("XNMCZUSD", "NMCUSD");
-		
-		pairMap.put("ZEURXXRP", "EURXRP");
-		pairMap.put("ZUSDXXRP", "USDXRP");
 	}
 	
 	

@@ -241,7 +241,10 @@ public class MainActivity extends Activity implements OnItemSelectedListener {
 		double amountTop = 0.0;
 		String amountTopString = textTop.getText().toString();
 		if (amountTopString != null && !amountTopString.equals("")) {
-			amountTop = Double.parseDouble(amountTopString);
+			try {
+				amountTop = Double.parseDouble(amountTopString);
+			} catch (NumberFormatException e) {
+			}
 		}
 		double amountBot = amountTop * topBotExchangeRate;
 		textBot.setText(getFormattedDecimal(amountBot));
