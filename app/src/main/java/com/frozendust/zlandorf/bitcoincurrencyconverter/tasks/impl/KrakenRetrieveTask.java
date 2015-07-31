@@ -4,20 +4,14 @@ import com.frozendust.zlandorf.bitcoincurrencyconverter.models.entities.Rate;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.tasks.HttpTask;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.tasks.RetrieveTask;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by zlandorf on 31/07/2015.
- */
 public class KrakenRetrieveTask extends RetrieveTask {
 
     public static final String KRAKEN_URL = "https://api.kraken.com/0/public/Ticker?pair=XXBTZEUR,XXBTXLTC,XXBTZUSD,XLTCZEUR,XLTCZUSD";
@@ -26,7 +20,7 @@ public class KrakenRetrieveTask extends RetrieveTask {
 
     public KrakenRetrieveTask() {
         pairMap = new HashMap<>();
-        //!\ Beware, by changing the values below, you must change the constant KRAKEN_URL
+        //!\ Beware, when changing the values below, you must change the constant KRAKEN_URL
         pairMap.put("XXBTZEUR", new Rate("BTC", "EUR"));
         pairMap.put("XXBTXLTC", new Rate("BTC", "LTC"));
         pairMap.put("XXBTZUSD", new Rate("BTC", "USD"));
