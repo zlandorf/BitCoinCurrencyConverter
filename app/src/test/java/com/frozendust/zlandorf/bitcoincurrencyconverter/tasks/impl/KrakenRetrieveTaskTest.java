@@ -2,23 +2,23 @@ package com.frozendust.zlandorf.bitcoincurrencyconverter.tasks.impl;
 
 import com.frozendust.zlandorf.bitcoincurrencyconverter.models.entities.Rate;
 
-import junit.framework.TestCase;
-
 import org.junit.Test;
 
 import java.util.List;
 
-/**
- * Created by zlandorf on 31/07/2015.
- */
-public class KrakenRetrieveTaskTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+
+public class KrakenRetrieveTaskTest {
 
     @Test
     public void testRetrieveTasks() throws Exception {
         KrakenRetrieveTask task = new KrakenRetrieveTask();
         List<Rate> rates = task.retrieveRates();
-        assertNotNull(rates);
-        assertFalse(rates.isEmpty());
-        assertEquals(task.pairMap.keySet().size(), rates.size());
+        assertNotNull("Rates list is NULL", rates);
+        assertFalse("Rates list is EMPTY", rates.isEmpty());
+        assertEquals("Number of rates returned is different from number of rates requested",
+                task.pairMap.keySet().size(), rates.size());
     }
 }
