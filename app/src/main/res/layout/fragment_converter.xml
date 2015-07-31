@@ -1,0 +1,67 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.ConverterFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="false">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Spinner
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:id="@+id/convertFromSpinner"
+                android:layout_weight="1"
+                android:spinnerMode="dropdown" />
+
+            <EditText
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:inputType="numberDecimal"
+                android:ems="10"
+                android:id="@+id/convertFromText"
+                android:layout_weight="1.5" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView"
+            android:contentDescription="@string/convert_to_image_description"
+            android:background="@drawable/ic_action"
+            android:adjustViewBounds="true"
+            android:layout_gravity="center_vertical"
+            android:cropToPadding="false"
+            android:focusable="false" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:id="@+id/convertToText"
+                android:layout_weight="1.5" />
+
+            <Spinner
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:id="@+id/convertToSpinner"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

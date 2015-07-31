@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">CryptoCoin Converter</string>
+
+    <string name="action_settings">Settings</string>
+
+    <string name="convert_to_image_description">to</string>
+</resources>
