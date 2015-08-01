@@ -78,7 +78,12 @@ public class ConverterFragment extends Fragment {
 
         double convertedValue = 0;
 
-        if (fromItemPosition != Spinner.INVALID_POSITION && toItemPosition != Spinner.INVALID_POSITION) {
+        if (
+            fromItemPosition != Spinner.INVALID_POSITION
+            && toItemPosition != Spinner.INVALID_POSITION
+            && fromItemPosition < mFromSpinner.getCount()
+            && toItemPosition < mToSpinner.getCount()
+        ) {
             String selectedFrom = (String) mFromSpinner.getItemAtPosition(fromItemPosition);
             String selectedTo = (String) mToSpinner.getItemAtPosition(toItemPosition);
 
@@ -101,9 +106,11 @@ public class ConverterFragment extends Fragment {
      * Update the "To" Spinner to only display currencies the selected currency can convert to
      */
     public void updateToSpinner() {
-        mToAdapter.clear();
         int fromItemPosition = mFromSpinner.getSelectedItemPosition();
-        if (fromItemPosition != Spinner.INVALID_POSITION) {
+        String previouslySelectTo = (String) mToSpinner.getSelectedItem();
+
+        mToAdapter.clear();
+        if (fromItemPosition != Spinner.INVALID_POSITION && fromItemPosition < mFromSpinner.getCount()) {
             String selectedFrom = (String) mFromSpinner.getItemAtPosition(fromItemPosition);
             for (Rate rate : mPairToRateMap.values()) {
                 if (rate.getFrom().equals(selectedFrom)) {
@@ -111,7 +118,18 @@ public class ConverterFragment extends Fragment {
                 }
             }
         }
+
         mToAdapter.notifyDataSetChanged();
+
+        if (previouslySelectTo != null) {
+            for (int i = 0; i < mToCurrencies.size(); i++) {
+                if (mToCurrencies.get(i).equals(previouslySelectTo)) {
+                    // reset the previously selected "To" currency
+                    mToSpinner.setSelection(i);
+                    break;
+                }
+            }
+        }
     }
 
     @Override
@@ -143,8 +161,14 @@ public class ConverterFragment extends Fragment {
         mFromTextInput = (TextView) view.findViewById(R.id.convertFromText);
         mFromTextInput.setText("1.0");
         mFromTextInput.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
             @Override
             public void afterTextChanged(Editable s) {
                 updateConversion();
