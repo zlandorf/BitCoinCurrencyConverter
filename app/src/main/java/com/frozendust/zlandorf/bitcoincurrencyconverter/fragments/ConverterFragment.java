@@ -17,7 +17,6 @@ import com.frozendust.zlandorf.bitcoincurrencyconverter.models.entities.Rate;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
@@ -53,16 +52,19 @@ public class ConverterFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_converter, container, false);
 
+        ArrayAdapter<String> fromAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, mFromCurrencies);
+        fromAdapter.setDropDownViewResource(android.R.layout.simple_list_item_1);
         Spinner fromSpinner = (Spinner) view.findViewById(R.id.convertFromSpinner);
-        fromSpinner.setAdapter(new ArrayAdapter<>(view.getContext(), R.layout.support_simple_spinner_dropdown_item, mFromCurrencies));
+        fromSpinner.setAdapter(fromAdapter);
 
+        ArrayAdapter<String> toAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, mToCurrencies);
+        toAdapter.setDropDownViewResource(android.R.layout.simple_list_item_1);
         Spinner toSpinner = (Spinner) view.findViewById(R.id.convertToSpinner);
-        toSpinner.setAdapter(new ArrayAdapter<>(view.getContext(), R.layout.support_simple_spinner_dropdown_item, mToCurrencies));
+        toSpinner.setAdapter(toAdapter);
 
         TextView fromText = (TextView) view.findViewById(R.id.convertFromText);
         fromText.setText("1.0");
@@ -95,8 +97,8 @@ public class ConverterFragment extends Fragment {
     }
 
     public void onRatesRetrieved(List<Rate> rates) {
-        Spinner fromSpinner = (Spinner) getView().findViewById(R.id.convertFromSpinner);
-        Spinner toSpinner = (Spinner) getView().findViewById(R.id.convertToSpinner);
+        Spinner fromSpinner = (Spinner) getActivity().findViewById(R.id.convertFromSpinner);
+        Spinner toSpinner = (Spinner) getActivity().findViewById(R.id.convertToSpinner);
 
         if (fromSpinner != null && toSpinner != null && rates != null) {
             ArrayAdapter<String> fromAdapter = (ArrayAdapter<String>) fromSpinner.getAdapter();
@@ -128,7 +130,7 @@ public class ConverterFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        public void onFragmentInteraction(Uri uri);
+        void onFragmentInteraction(Uri uri);
     }
 
 }
