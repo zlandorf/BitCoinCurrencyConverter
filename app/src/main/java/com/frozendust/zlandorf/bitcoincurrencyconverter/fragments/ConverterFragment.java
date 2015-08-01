@@ -198,6 +198,15 @@ public class ConverterFragment extends Fragment {
 
     public void onRatesRetrieved(List<Rate> rates) {
         if (rates != null) {
+            List<Rate> invertedRates = new ArrayList<>();
+            for (Rate rate : rates) {
+                if (rate.getValue() > 0) {
+                    // add inverted rates to be able to convert both ways
+                    invertedRates.add(new Rate(rate.getTo(), rate.getFrom(), 1. / rate.getValue()));
+                }
+            }
+            rates.addAll(invertedRates);
+
             for (Rate rate : rates) {
                 if (!mFromCurrencies.contains(rate.getFrom())) {
                     mFromCurrencies.add(rate.getFrom());
