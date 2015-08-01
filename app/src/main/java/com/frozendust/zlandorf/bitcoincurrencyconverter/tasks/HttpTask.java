@@ -7,26 +7,12 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-/**
- * Created by zlandorf on 31/07/2015.
- */
 public class HttpTask {
 
-    /**
-     *
-     * @param urlString
-     * @return
-     * @throws IOException
-     */
     public String request(String urlString) throws IOException {
         return request(urlString, "GET");
     }
 
-    /**
-     * @param urlString
-     * @return
-     * @throws IOException
-     */
     public String request(String urlString, String requestMethod) throws IOException {
         InputStream inputStream = null;
         try {
@@ -37,11 +23,12 @@ public class HttpTask {
             inputStream = connection.getInputStream();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-            StringBuffer response = new StringBuffer();
+            StringBuilder response = new StringBuilder();
 
             String line;
             while ((line = reader.readLine()) != null) {
                 response.append(line);
+                response.append("\n");
             }
 
             return response.toString();

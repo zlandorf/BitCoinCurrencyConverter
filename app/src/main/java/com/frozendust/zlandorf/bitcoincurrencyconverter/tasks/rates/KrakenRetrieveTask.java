@@ -12,9 +12,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This Task retrieves crypto/fiat exchange rates from Kraken's public ticker
+ *
+ * @see <a href="https://www.kraken.com/help/api#get-ticker-info">https://www.kraken.com/help/api#get-ticker-info</a>
+ *
+ */
 public class KrakenRetrieveTask extends RetrieveTask {
-
-    public static final String KRAKEN_URL = "https://api.kraken.com/0/public/Ticker?pair=XXBTZEUR,XXBTXLTC,XXBTZUSD,XLTCZEUR,XLTCZUSD";
+    protected static final String KRAKEN_URL =
+        "https://api.kraken.com/0/public/Ticker?pair="+
+            "XXBTZEUR,"+
+            "XXBTZUSD,"+
+            "XXBTZCAD,"+
+            "XXBTXLTC,"+
+            "XLTCZEUR,"+
+            "XLTCZUSD";
 
     Map<String, Rate> pairMap;
 
@@ -23,24 +35,14 @@ public class KrakenRetrieveTask extends RetrieveTask {
         pairMap = new HashMap<>();
         //!\ Beware, when changing the values below, you must change the constant KRAKEN_URL
         pairMap.put("XXBTZEUR", new Rate("BTC", "EUR"));
-        pairMap.put("XXBTXLTC", new Rate("BTC", "LTC"));
         pairMap.put("XXBTZUSD", new Rate("BTC", "USD"));
-        pairMap.put("XXBTZUSD", new Rate("LTC", "EUR"));
-        pairMap.put("XXBTZUSD", new Rate("LTC", "USD"));
+        pairMap.put("XXBTZCAD", new Rate("BTC", "CAD"));
+        pairMap.put("XXBTXLTC", new Rate("BTC", "LTC"));
+        pairMap.put("XLTCZEUR", new Rate("LTC", "EUR"));
+        pairMap.put("XLTCZUSD", new Rate("LTC", "USD"));
     }
 
-    @Override
-    protected List<Rate> doInBackground(Void... params) {
-        try {
-            return retrieveRates();
-        } catch (Exception e) {
-            System.out.println("Error retrieving Kraken rates : ["+e.getMessage()+"]");
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    protected List<Rate> retrieveRates() throws Exception {
+    public List<Rate> retrieveRates() throws Exception {
         List<Rate> rates = new ArrayList<>();
         String rawResponse = (new HttpTask()).request(KRAKEN_URL);
         JSONObject result = new JSONObject(rawResponse).getJSONObject("result");
