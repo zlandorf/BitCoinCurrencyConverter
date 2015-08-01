@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -30,6 +31,9 @@ public class ConverterFragment extends Fragment {
 
     private List<String> mFromCurrencies;
     private List<String> mToCurrencies;
+
+    private ArrayAdapter<String> mFromAdapter;
+    private ArrayAdapter<String> mToAdapter;
 
     /**
      * Use this factory method to create a new instance of
@@ -56,15 +60,15 @@ public class ConverterFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_converter, container, false);
 
-        ArrayAdapter<String> fromAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, mFromCurrencies);
-        fromAdapter.setDropDownViewResource(android.R.layout.simple_list_item_1);
+        mFromAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, mFromCurrencies);
+        mFromAdapter.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);
         Spinner fromSpinner = (Spinner) view.findViewById(R.id.convertFromSpinner);
-        fromSpinner.setAdapter(fromAdapter);
+        fromSpinner.setAdapter(mFromAdapter);
 
-        ArrayAdapter<String> toAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, mToCurrencies);
-        toAdapter.setDropDownViewResource(android.R.layout.simple_list_item_1);
+        mToAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, mToCurrencies);
+        mToAdapter.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);
         Spinner toSpinner = (Spinner) view.findViewById(R.id.convertToSpinner);
-        toSpinner.setAdapter(toAdapter);
+        toSpinner.setAdapter(mToAdapter);
 
         TextView fromText = (TextView) view.findViewById(R.id.convertFromText);
         fromText.setText("1.0");
@@ -97,13 +101,7 @@ public class ConverterFragment extends Fragment {
     }
 
     public void onRatesRetrieved(List<Rate> rates) {
-        Spinner fromSpinner = (Spinner) getActivity().findViewById(R.id.convertFromSpinner);
-        Spinner toSpinner = (Spinner) getActivity().findViewById(R.id.convertToSpinner);
-
-        if (fromSpinner != null && toSpinner != null && rates != null) {
-            ArrayAdapter<String> fromAdapter = (ArrayAdapter<String>) fromSpinner.getAdapter();
-            ArrayAdapter<String> toAdapter = (ArrayAdapter<String>) toSpinner.getAdapter();
-
+        if (rates != null) {
             for (Rate rate : rates) {
                 if (!mFromCurrencies.contains(rate.getFrom())) {
                     mFromCurrencies.add(rate.getFrom());
@@ -113,8 +111,8 @@ public class ConverterFragment extends Fragment {
                 }
             }
 
-            fromAdapter.notifyDataSetChanged();
-            toAdapter.notifyDataSetChanged();
+            mFromAdapter.notifyDataSetChanged();
+            mToAdapter.notifyDataSetChanged();
         }
     }
 
