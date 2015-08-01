@@ -9,6 +9,7 @@ import android.view.MenuItem;
 
 import com.frozendust.zlandorf.bitcoincurrencyconverter.R;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.ConverterFragment;
+import com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.RateListFragment;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.RatesTaskFragment;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.models.entities.Rate;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.tasks.RetrieveTask;
@@ -16,9 +17,8 @@ import com.frozendust.zlandorf.bitcoincurrencyconverter.tasks.RetrieveTask;
 import java.util.List;
 
 
-public class HomeActivity extends AppCompatActivity implements ConverterFragment.OnFragmentInteractionListener, RetrieveTask.RetrieveTaskListener {
+public class HomeActivity extends AppCompatActivity implements ConverterFragment.OnFragmentInteractionListener, RetrieveTask.RetrieveTaskListener, RateListFragment.RateListListener {
     private static final String RATES_TASK_FRAGMENT = "rates_task_fragment";
-    private RatesTaskFragment mRatesTaskFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,10 +26,10 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
         setContentView(R.layout.activity_home);
 
         FragmentManager fm = getSupportFragmentManager();
-        mRatesTaskFragment = (RatesTaskFragment) fm.findFragmentByTag(RATES_TASK_FRAGMENT);
-        if (mRatesTaskFragment == null) {
-            mRatesTaskFragment = RatesTaskFragment.newInstance();
-            fm.beginTransaction().add(mRatesTaskFragment, RATES_TASK_FRAGMENT).commit();
+        RatesTaskFragment ratesTaskFragment = (RatesTaskFragment) fm.findFragmentByTag(RATES_TASK_FRAGMENT);
+        if (ratesTaskFragment == null) {
+            ratesTaskFragment = RatesTaskFragment.newInstance();
+            fm.beginTransaction().add(ratesTaskFragment, RATES_TASK_FRAGMENT).commit();
         }
     }
 
@@ -63,9 +63,14 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
     @Override
     public void onTaskFinished(List<Rate> rates) {
         FragmentManager fm = getSupportFragmentManager();
-        ConverterFragment converterFragment = (ConverterFragment) fm.findFragmentById(R.id.converterFragment);
+        ConverterFragment converterFragment = (ConverterFragment) fm.findFragmentById(R.id.fragment_converter);
         if (converterFragment != null) {
             converterFragment.onRatesRetrieved(rates);
         }
+    }
+
+    @Override
+    public void onRateSelected(Rate rate) {
+        // TODO !
     }
 }

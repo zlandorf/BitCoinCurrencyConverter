@@ -25,12 +25,12 @@ public class RateAdapter extends ArrayAdapter<Rate> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.rate_item, parent, false);
         }
 
-        TextView pair = (TextView) convertView.findViewById(R.id.rate_pair_name);
-        TextView value = (TextView) convertView.findViewById(R.id.rate_value);
+        TextView pairText = (TextView) convertView.findViewById(R.id.rate_pair_name);
+        TextView valueText = (TextView) convertView.findViewById(R.id.rate_value);
 
-        pair.setText(String.format("%s/%s :", rate.getFrom(), rate.getTo()));
-        pair.setText(String.valueOf(rate.getValue()));
+        pairText.setText(String.format("%s/%s :", rate.getFrom(), rate.getTo()));
+        valueText.setText(String.valueOf(rate.getValue()));
 
-        return super.getView(position, convertView, parent);
+        return convertView;
     }
 }

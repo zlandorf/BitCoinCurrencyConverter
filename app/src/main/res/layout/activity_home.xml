@@ -6,10 +6,20 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".HomeActivity">
 
-        <fragment
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:name="com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.ConverterFragment"
-            android:id="@+id/converterFragment"
-            tools:layout="@layout/fragment_converter" />
+    <fragment
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:name="com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.ConverterFragment"
+        android:id="@+id/fragment_converter"
+        tools:layout="@layout/fragment_converter" />
+
+    <fragment
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:name="com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.RateListFragment"
+        android:id="@+id/fragment_rate_list"
+        android:layout_below="@+id/fragment_converter"
+        android:layout_centerHorizontal="true"
+        tools:layout="@layout/fragment_rate_list" />
+
 </RelativeLayout>

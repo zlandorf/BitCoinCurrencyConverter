@@ -3,9 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.RateListFragment"
-    android:id="@+id/rate_list_fragment">
+    android:id="@+id/fragment_list_fragment">
 
-    <ListView android:id="@+id/list" android:layout_width="match_parent"
+    <ListView android:id="@+id/rate_list" android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
 </FrameLayout>
