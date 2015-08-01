@@ -43,4 +43,8 @@ public class Rate {
     public void setValue(double value) {
         this.value = value;
     }
+
+    public String getPair() {
+        return getFrom()+getTo();
+    }
 }
