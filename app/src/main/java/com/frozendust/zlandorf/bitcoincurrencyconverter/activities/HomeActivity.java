@@ -18,7 +18,7 @@ import java.util.List;
 
 public class HomeActivity extends AppCompatActivity implements ConverterFragment.OnFragmentInteractionListener, RetrieveTask.RetrieveTaskListener {
     private static final String RATES_TASK_FRAGMENT = "rates_task_fragment";
-    private RatesTaskFragment mRatesTaskFrament;
+    private RatesTaskFragment mRatesTaskFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,10 +26,10 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
         setContentView(R.layout.activity_home);
 
         FragmentManager fm = getSupportFragmentManager();
-        mRatesTaskFrament = (RatesTaskFragment) fm.findFragmentByTag(RATES_TASK_FRAGMENT);
-        if (mRatesTaskFrament == null) {
-            mRatesTaskFrament = RatesTaskFragment.newInstance();
-            fm.beginTransaction().add(mRatesTaskFrament, RATES_TASK_FRAGMENT).commit();
+        mRatesTaskFragment = (RatesTaskFragment) fm.findFragmentByTag(RATES_TASK_FRAGMENT);
+        if (mRatesTaskFragment == null) {
+            mRatesTaskFragment = RatesTaskFragment.newInstance();
+            fm.beginTransaction().add(mRatesTaskFragment, RATES_TASK_FRAGMENT).commit();
         }
     }
 
