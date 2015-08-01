@@ -1,8 +1,5 @@
 package com.frozendust.zlandorf.bitcoincurrencyconverter.models.entities;
 
-/**
- * Created by zlandorf on 31/07/2015.
- */
 public class Rate {
     private String from;
     private String to;
@@ -16,6 +13,11 @@ public class Rate {
         this.from = from;
         this.to = to;
         this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s/%s : %f", from, to, value);
     }
 
     public String getFrom() {

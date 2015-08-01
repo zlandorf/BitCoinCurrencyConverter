@@ -1,15 +1,14 @@
 package com.frozendust.zlandorf.bitcoincurrencyconverter.fragments;
 
 import android.app.Activity;
-import android.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.ListAdapter;
-import android.widget.TextView;
 
 import com.frozendust.zlandorf.bitcoincurrencyconverter.R;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.adapters.RateAdapter;
@@ -39,7 +38,7 @@ public class RateListFragment extends Fragment implements AbsListView.OnItemClic
      * The Adapter which will be used to populate the ListView/GridView with
      * Views.
      */
-    private ListAdapter mAdapter;
+    private RateAdapter mAdapter;
 
     private List<Rate> mRates;
 
@@ -53,7 +52,25 @@ public class RateListFragment extends Fragment implements AbsListView.OnItemClic
      */
     public RateListFragment() {
         mRates = new ArrayList<>();
-        mRates.add(new Rate("BTC", "EUR", 260));
+    }
+
+    public void onRatesRetrieved(List<Rate> rates) {
+        Log.d("RATE_LIST_FRAGMENT", String.format("Rates received : %s\n", rates.size()));
+        mainLoop: for (Rate rate : rates) {
+            for (Rate existingRate : mRates) {
+                if (existingRate.getFrom().equals(rate.getFrom())
+                    && existingRate.getTo().equals(rate.getTo())) {
+                    Log.d("RATE_LIST_FRAGMENT", String.format("updating existing rate [%s] with new values [%s]\n", existingRate, rate));
+                    // Rate already listed, update it and go to next rate
+                    existingRate.setValue(rate.getValue());
+                    continue mainLoop;
+                }
+            }
+            // rate not listed yet
+            mRates.add(rate);
+            Log.d("RATE_LIST_FRAGMENT", String.format("added rate: %s\n", rate));
+        }
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -99,19 +116,6 @@ public class RateListFragment extends Fragment implements AbsListView.OnItemClic
             // Notify the active callbacks interface (the activity, if the
             // fragment is attached to one) that an item has been selected.
             mListener.onRateSelected(mRates.get(position));
-        }
-    }
-
-    /**
-     * The default content for this Fragment has a TextView that is shown when
-     * the list is empty. If you would like to change the text, call this method
-     * to supply the text it should use.
-     */
-    public void setEmptyText(CharSequence emptyText) {
-        View emptyView = mListView.getEmptyView();
-
-        if (emptyView instanceof TextView) {
-            ((TextView) emptyView).setText(emptyText);
         }
     }
 

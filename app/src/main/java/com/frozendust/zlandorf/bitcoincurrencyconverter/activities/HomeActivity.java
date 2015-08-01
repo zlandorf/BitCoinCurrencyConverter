@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -15,7 +16,6 @@ import com.frozendust.zlandorf.bitcoincurrencyconverter.models.entities.Rate;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.tasks.RetrieveTask;
 
 import java.util.List;
-
 
 public class HomeActivity extends AppCompatActivity implements ConverterFragment.OnFragmentInteractionListener, RetrieveTask.RetrieveTaskListener, RateListFragment.RateListListener {
     private static final String RATES_TASK_FRAGMENT = "rates_task_fragment";
@@ -62,10 +62,18 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
 
     @Override
     public void onTaskFinished(List<Rate> rates) {
+        Log.d("RATE_RETRIEVAL", String.format("Rates received : %s\n", rates.size()));
+
         FragmentManager fm = getSupportFragmentManager();
         ConverterFragment converterFragment = (ConverterFragment) fm.findFragmentById(R.id.fragment_converter);
         if (converterFragment != null) {
             converterFragment.onRatesRetrieved(rates);
+        }
+        RateListFragment rateListFragment = (RateListFragment) fm.findFragmentById(R.id.fragment_rate_list);
+        if (rateListFragment != null) {
+            rateListFragment.onRatesRetrieved(rates);
+        } else {
+            Log.e("RATE_RETRIEVAL", "RateListFragment not found !");
         }
     }
 

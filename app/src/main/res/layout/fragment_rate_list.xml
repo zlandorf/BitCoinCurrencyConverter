@@ -2,8 +2,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.RateListFragment"
-    android:id="@+id/fragment_list_fragment">
+    tools:context="com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.RateListFragment">
 
     <ListView android:id="@+id/rate_list" android:layout_width="match_parent"
         android:layout_height="match_parent" />
