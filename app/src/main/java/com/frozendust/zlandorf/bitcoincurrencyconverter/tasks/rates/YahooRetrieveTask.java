@@ -19,24 +19,35 @@ import java.util.Map;
  */
 public class YahooRetrieveTask extends RetrieveTask {
     //EUR USD , EUR CNY , EUR GBP , USD CNY , USD GBP , GBP CNY
-    protected static String YAHOO_URL = "http://download.finance.yahoo.com/d/quotes.csv?s=EURUSD=X,EURCAD=X,EURGBP=X,EURCNY=X,USDCAD=X,USDGBP=X,USDCNY=X,CADGBP=X,CADCNY=X,GBPCNY=X&f=sl1&e=.csv";
+    protected static String YAHOO_URL = "http://download.finance.yahoo.com/d/quotes.csv?s="+
+            "EURUSD=X,"+
+            "EURCAD=X,"+
+            "EURGBP=X,"+
+            "EURCNY=X,"+
+            "USDCAD=X,"+
+            "USDGBP=X,"+
+            "USDCNY=X,"+
+            "CADGBP=X,"+
+            "CADCNY=X,"+
+            "GBPCNY=X"+
+            "&f=sl1&e=.csv";
 
-    Map<String, Rate> pairMap;
+    Map<String, Rate> mPairMap;
 
     public YahooRetrieveTask(RetrieveTaskListener listener) {
         super(listener);
-        pairMap = new HashMap<>();
+        mPairMap = new HashMap<>();
         //!\ Beware, when changing the values below, you must change the constant YAHOO_URL
-        pairMap.put("EURUSD", new Rate("EUR", "USD"));
-        pairMap.put("EURCAD", new Rate("EUR", "CAD"));
-        pairMap.put("EURGBP", new Rate("EUR", "GBP"));
-        pairMap.put("EURCNY", new Rate("EUR", "CNY"));
-        pairMap.put("USDCAD", new Rate("USD", "CAD"));
-        pairMap.put("USDGBP", new Rate("USD", "GBP"));
-        pairMap.put("USDCNY", new Rate("USD", "CNY"));
-        pairMap.put("CADBGP", new Rate("CAD", "GBP"));
-        pairMap.put("CADCNY", new Rate("CAD", "CNY"));
-        pairMap.put("GBPCNY", new Rate("GBP", "CNY"));
+        mPairMap.put("EURUSD", new Rate("EUR", "USD"));
+        mPairMap.put("EURCAD", new Rate("EUR", "CAD"));
+        mPairMap.put("EURGBP", new Rate("EUR", "GBP"));
+        mPairMap.put("EURCNY", new Rate("EUR", "CNY"));
+        mPairMap.put("USDCAD", new Rate("USD", "CAD"));
+        mPairMap.put("USDGBP", new Rate("USD", "GBP"));
+        mPairMap.put("USDCNY", new Rate("USD", "CNY"));
+        mPairMap.put("CADGBP", new Rate("CAD", "GBP"));
+        mPairMap.put("CADCNY", new Rate("CAD", "CNY"));
+        mPairMap.put("GBPCNY", new Rate("GBP", "CNY"));
     }
 
     public List<Rate> retrieveRates() throws Exception {
@@ -46,13 +57,14 @@ public class YahooRetrieveTask extends RetrieveTask {
         for (String line : rawResponse.replaceAll("\"|=X", "").split("\n")) {
             String [] data = line.split(",");
             String pair = data[0];
-            String from = pair.substring(0, 3);
-            String to = pair.substring(3, 6);
             double value = Double.parseDouble(data[1]);
 
-            rates.add(new Rate(from, to, value));
+            Rate rate = mPairMap.get(pair);
+            if (rate != null) {
+                rate.setValue(value);
+                rates.add(rate);
+            }
         }
-
         return rates;
     }
 }

@@ -28,18 +28,18 @@ public class KrakenRetrieveTask extends RetrieveTask {
             "XLTCZEUR,"+
             "XLTCZUSD";
 
-    Map<String, Rate> pairMap;
+    Map<String, Rate> mPairMap;
 
     public KrakenRetrieveTask(RetrieveTaskListener listener) {
         super(listener);
-        pairMap = new HashMap<>();
+        mPairMap = new HashMap<>();
         //!\ Beware, when changing the values below, you must change the constant KRAKEN_URL
-        pairMap.put("XXBTZEUR", new Rate("BTC", "EUR"));
-        pairMap.put("XXBTZUSD", new Rate("BTC", "USD"));
-        pairMap.put("XXBTZCAD", new Rate("BTC", "CAD"));
-        pairMap.put("XXBTXLTC", new Rate("BTC", "LTC"));
-        pairMap.put("XLTCZEUR", new Rate("LTC", "EUR"));
-        pairMap.put("XLTCZUSD", new Rate("LTC", "USD"));
+        mPairMap.put("XXBTZEUR", new Rate("BTC", "EUR"));
+        mPairMap.put("XXBTZUSD", new Rate("BTC", "USD"));
+        mPairMap.put("XXBTZCAD", new Rate("BTC", "CAD"));
+        mPairMap.put("XXBTXLTC", new Rate("BTC", "LTC"));
+        mPairMap.put("XLTCZEUR", new Rate("LTC", "EUR"));
+        mPairMap.put("XLTCZUSD", new Rate("LTC", "USD"));
     }
 
     public List<Rate> retrieveRates() throws Exception {
@@ -54,18 +54,14 @@ public class KrakenRetrieveTask extends RetrieveTask {
         Iterator<String> pairIterator = result.keys();
         while (pairIterator.hasNext()) {
             String krakenPairName = pairIterator.next();
-            Rate rate = pairMap.get(krakenPairName);
+            Rate rate = mPairMap.get(krakenPairName);
 
-            if (null == rate) {
-                // Kraken Pair not mapped to a Pair
-                continue;
+            if (null != rate) {
+                JSONObject tickerInfo = result.getJSONObject(krakenPairName);
+                rate.setValue(tickerInfo.getJSONArray("c").getDouble(0));
+                rates.add(rate);
             }
-
-            JSONObject tickerInfo = result.getJSONObject(krakenPairName);
-            rate.setValue(tickerInfo.getJSONArray("c").getDouble(0));
-            rates.add(rate);
         }
-
         return rates;
     }
 }

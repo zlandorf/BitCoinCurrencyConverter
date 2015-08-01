@@ -17,6 +17,6 @@ public class YahooRetrieveTaskTest {
         assertNotNull("Rates list is NULL", rates);
         assertFalse("Rates list is EMPTY", rates.isEmpty());
         assertEquals("Number of rates returned is different from number of rates requested",
-                task.pairMap.keySet().size(), rates.size());
+                task.mPairMap.keySet().size(), rates.size());
     }
 }
