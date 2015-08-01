@@ -3,7 +3,7 @@ package com.frozendust.zlandorf.bitcoincurrencyconverter.fragments;
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +12,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.frozendust.zlandorf.bitcoincurrencyconverter.R;
+import com.frozendust.zlandorf.bitcoincurrencyconverter.models.entities.Rate;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -25,6 +29,9 @@ import com.frozendust.zlandorf.bitcoincurrencyconverter.R;
 public class ConverterFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
 
+    private List<String> mFromCurrencies;
+    private List<String> mToCurrencies;
+
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -36,7 +43,8 @@ public class ConverterFragment extends Fragment {
     }
 
     public ConverterFragment() {
-        // Required empty public constructor
+        mFromCurrencies = new ArrayList<>();
+        mToCurrencies = new ArrayList<>();
     }
 
     @Override
@@ -51,12 +59,10 @@ public class ConverterFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_converter, container, false);
 
         Spinner fromSpinner = (Spinner) view.findViewById(R.id.convertFromSpinner);
+        fromSpinner.setAdapter(new ArrayAdapter<>(view.getContext(), R.layout.support_simple_spinner_dropdown_item, mFromCurrencies));
+
         Spinner toSpinner = (Spinner) view.findViewById(R.id.convertToSpinner);
-
-        String[] testItems = new String[]{"foo", "bar"};
-
-        fromSpinner.setAdapter(new ArrayAdapter<String>(view.getContext(), R.layout.support_simple_spinner_dropdown_item, testItems));
-        toSpinner.setAdapter(new ArrayAdapter<String>(view.getContext(), R.layout.support_simple_spinner_dropdown_item, testItems));
+        toSpinner.setAdapter(new ArrayAdapter<>(view.getContext(), R.layout.support_simple_spinner_dropdown_item, mToCurrencies));
 
         TextView fromText = (TextView) view.findViewById(R.id.convertFromText);
         fromText.setText("1.0");
@@ -86,6 +92,28 @@ public class ConverterFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    public void onRatesRetrieved(List<Rate> rates) {
+        Spinner fromSpinner = (Spinner) getView().findViewById(R.id.convertFromSpinner);
+        Spinner toSpinner = (Spinner) getView().findViewById(R.id.convertToSpinner);
+
+        if (fromSpinner != null && toSpinner != null && rates != null) {
+            ArrayAdapter<String> fromAdapter = (ArrayAdapter<String>) fromSpinner.getAdapter();
+            ArrayAdapter<String> toAdapter = (ArrayAdapter<String>) toSpinner.getAdapter();
+
+            for (Rate rate : rates) {
+                if (!mFromCurrencies.contains(rate.getFrom())) {
+                    mFromCurrencies.add(rate.getFrom());
+                }
+                if (!mToCurrencies.contains(rate.getTo())) {
+                    mToCurrencies.add(rate.getTo());
+                }
+            }
+
+            fromAdapter.notifyDataSetChanged();
+            toAdapter.notifyDataSetChanged();
+        }
     }
 
     /**

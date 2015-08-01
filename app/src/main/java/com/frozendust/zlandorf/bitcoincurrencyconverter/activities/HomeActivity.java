@@ -2,20 +2,35 @@ package com.frozendust.zlandorf.bitcoincurrencyconverter.activities;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.ConverterFragment;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.R;
+import com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.ConverterFragment;
+import com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.RatesTaskFragment;
+import com.frozendust.zlandorf.bitcoincurrencyconverter.models.entities.Rate;
+import com.frozendust.zlandorf.bitcoincurrencyconverter.tasks.RetrieveTask;
+
+import java.util.List;
 
 
-public class HomeActivity extends AppCompatActivity implements ConverterFragment.OnFragmentInteractionListener {
+public class HomeActivity extends AppCompatActivity implements ConverterFragment.OnFragmentInteractionListener, RetrieveTask.RetrieveTaskListener {
+    private static final String RATES_TASK_FRAGMENT = "rates_task_fragment";
+    private RatesTaskFragment mRatesTaskFrament;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        FragmentManager fm = getSupportFragmentManager();
+        mRatesTaskFrament = (RatesTaskFragment) fm.findFragmentByTag(RATES_TASK_FRAGMENT);
+        if (mRatesTaskFrament == null) {
+            mRatesTaskFrament = RatesTaskFragment.newInstance();
+            fm.beginTransaction().add(mRatesTaskFrament, RATES_TASK_FRAGMENT).commit();
+        }
     }
 
     @Override
@@ -43,5 +58,14 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
     @Override
     public void onFragmentInteraction(Uri uri) {
         // Do nothing at the moment
+    }
+
+    @Override
+    public void onTaskFinished(List<Rate> rates) {
+        FragmentManager fm = getSupportFragmentManager();
+        ConverterFragment converterFragment = (ConverterFragment) fm.findFragmentById(R.id.converterFragment);
+        if (converterFragment != null) {
+            converterFragment.onRatesRetrieved(rates);
+        }
     }
 }

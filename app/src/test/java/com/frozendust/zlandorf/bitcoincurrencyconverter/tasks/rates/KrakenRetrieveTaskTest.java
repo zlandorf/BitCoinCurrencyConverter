@@ -1,4 +1,4 @@
-package com.frozendust.zlandorf.bitcoincurrencyconverter.tasks.impl;
+package com.frozendust.zlandorf.bitcoincurrencyconverter.tasks.rates;
 
 import com.frozendust.zlandorf.bitcoincurrencyconverter.models.entities.Rate;
 
@@ -14,7 +14,7 @@ public class KrakenRetrieveTaskTest {
 
     @Test
     public void testRetrieveTasks() throws Exception {
-        KrakenRetrieveTask task = new KrakenRetrieveTask();
+        KrakenRetrieveTask task = new KrakenRetrieveTask(null);
         List<Rate> rates = task.retrieveRates();
         assertNotNull("Rates list is NULL", rates);
         assertFalse("Rates list is EMPTY", rates.isEmpty());

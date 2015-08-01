@@ -1,4 +1,4 @@
-package com.frozendust.zlandorf.bitcoincurrencyconverter.tasks.impl;
+package com.frozendust.zlandorf.bitcoincurrencyconverter.tasks.rates;
 
 import com.frozendust.zlandorf.bitcoincurrencyconverter.models.entities.Rate;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.tasks.HttpTask;
@@ -18,7 +18,8 @@ public class KrakenRetrieveTask extends RetrieveTask {
 
     Map<String, Rate> pairMap;
 
-    public KrakenRetrieveTask() {
+    public KrakenRetrieveTask(RetrieveTaskListener listener) {
+        super(listener);
         pairMap = new HashMap<>();
         //!\ Beware, when changing the values below, you must change the constant KRAKEN_URL
         pairMap.put("XXBTZEUR", new Rate("BTC", "EUR"));
