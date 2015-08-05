@@ -20,7 +20,6 @@ public class RatesTaskFragment extends Fragment {
     }
 
     public RatesTaskFragment() {
-        mTasks = new ArrayList<>();
     }
 
     @Override
@@ -29,8 +28,10 @@ public class RatesTaskFragment extends Fragment {
         try {
             mListener = (RetrieveTask.RetrieveTaskListener) activity;
 
-            for (RetrieveTask task : mTasks) {
-                task.setListener(mListener);
+            if (mTasks != null) {
+                for (RetrieveTask task : mTasks) {
+                    task.setListener(mListener);
+                }
             }
 
         } catch (ClassCastException e) {
@@ -44,6 +45,7 @@ public class RatesTaskFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
 
+        mTasks = new ArrayList<>();
         //TODO : when implementing the refresh feature, make sure to not refresh an ongoing task
         mTasks.add((RetrieveTask) new KrakenRetrieveTask(mListener).execute());
         mTasks.add((RetrieveTask) new YahooRetrieveTask(mListener).execute());

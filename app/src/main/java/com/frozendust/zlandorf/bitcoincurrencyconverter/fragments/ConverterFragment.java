@@ -63,10 +63,6 @@ public class ConverterFragment extends Fragment {
     }
 
     public ConverterFragment() {
-        mFromCurrencies = new ArrayList<>();
-        mToCurrencies = new ArrayList<>();
-        mPairToRateMap = new ConcurrentHashMap<>();
-        mDecimalFormatter = new DecimalFormat("#,##0.0####", new DecimalFormatSymbols(Locale.ENGLISH));
     }
 
     /**
@@ -135,6 +131,12 @@ public class ConverterFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+
+        mFromCurrencies = new ArrayList<>();
+        mToCurrencies = new ArrayList<>();
+        mPairToRateMap = new ConcurrentHashMap<>();
+        mDecimalFormatter = new DecimalFormat("#,##0.0####", new DecimalFormatSymbols(Locale.ENGLISH));
     }
 
     @Override

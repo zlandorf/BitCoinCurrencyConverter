@@ -51,7 +51,6 @@ public class RateListFragment extends Fragment implements AbsListView.OnItemClic
      * fragment (e.g. upon screen orientation changes).
      */
     public RateListFragment() {
-        mRates = new ArrayList<>();
     }
 
     public void onRatesRetrieved(List<Rate> rates) {
@@ -76,6 +75,9 @@ public class RateListFragment extends Fragment implements AbsListView.OnItemClic
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRetainInstance(true);
+
+        mRates = new ArrayList<>();
         mAdapter = new RateAdapter(getActivity(), android.R.layout.simple_list_item_1, mRates);
     }
 
