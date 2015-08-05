@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:inputType="numberDecimal"
             android:ems="10"
-            android:imeOptions="actionDone"
+            android:imeOptions="actionDone|flagNoExtractUi"
             android:id="@+id/convertFromText"
             android:layout_weight="4"
             android:layout_gravity="bottom"
