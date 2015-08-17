@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.frozendust.zlandorf.bitcoincurrencyconverter.R;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.ConverterFragment;
@@ -28,6 +29,9 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
         FragmentManager fm = getSupportFragmentManager();
         RatesTaskFragment ratesTaskFragment = (RatesTaskFragment) fm.findFragmentByTag(RATES_TASK_FRAGMENT);
         if (ratesTaskFragment == null) {
+            // Show the progress bar while retrieving the rates
+            findViewById(R.id.progress_bar_container).setVisibility(View.VISIBLE);
+
             ratesTaskFragment = RatesTaskFragment.newInstance();
             fm.beginTransaction().add(ratesTaskFragment, RATES_TASK_FRAGMENT).commit();
         }
@@ -63,6 +67,8 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
     @Override
     public void onTaskFinished(List<Rate> rates) {
         Log.d("RATE_RETRIEVAL", String.format("Rates received : %s\n", rates.size()));
+        // Hide the progress bar
+        findViewById(R.id.progress_bar_container).setVisibility(View.GONE);
 
         FragmentManager fm = getSupportFragmentManager();
         ConverterFragment converterFragment = (ConverterFragment) fm.findFragmentById(R.id.fragment_converter);
