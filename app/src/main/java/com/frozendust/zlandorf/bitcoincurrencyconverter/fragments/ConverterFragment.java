@@ -34,6 +34,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * create an instance of this fragment.
  */
 public class ConverterFragment extends Fragment {
+    private static final String BITCOIN = "BTC";
+
+    private static final int BITCOIN_TO_MBTC = 1000;
+
     private OnFragmentInteractionListener mListener;
 
     private Spinner mFromSpinner;
@@ -233,17 +237,28 @@ public class ConverterFragment extends Fragment {
             }
 
             for (Rate rate : ratesWithInverted) {
-                if (!mFromCurrencies.contains(rate.getFrom())) {
-                    mFromCurrencies.add(rate.getFrom());
+                addRate(rate);
+
+                // If a rate contains bitcoins, add rates with mBTC, µBTC and Satoshi
+                if (rate.getFrom().equals(BITCOIN)) {
+                    addRate(new Rate("mBTC", rate.getTo(), rate.getValue() / BITCOIN_TO_MBTC));
+                } else if (rate.getTo().equals(BITCOIN)) {
+                    addRate(new Rate(rate.getFrom(), "mBTC", rate.getValue() * BITCOIN_TO_MBTC));
                 }
-                // This will update "old" rates in case of a refresh
-                mPairToRateMap.put(rate.getPair(), rate);
             }
             mFromAdapter.notifyDataSetChanged();
 
             updateToSpinner();
             updateConversion();
         }
+    }
+
+    private void addRate(Rate rate) {
+        if (!mFromCurrencies.contains(rate.getFrom())) {
+            mFromCurrencies.add(rate.getFrom());
+        }
+        // This will update "old" rates in case of a refresh
+        mPairToRateMap.put(rate.getPair(), rate);
     }
 
     /**
