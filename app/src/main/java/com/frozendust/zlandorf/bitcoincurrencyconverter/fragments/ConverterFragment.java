@@ -239,7 +239,7 @@ public class ConverterFragment extends Fragment {
             for (Rate rate : ratesWithInverted) {
                 addRate(rate);
 
-                // If a rate contains bitcoins, add rates with mBTC, µBTC and Satoshi
+                // If a rate is from or to BTC, add rates with mBTC
                 if (rate.getFrom().equals(BITCOIN)) {
                     addRate(new Rate("mBTC", rate.getTo(), rate.getValue() / BITCOIN_TO_MBTC));
                 } else if (rate.getTo().equals(BITCOIN)) {
