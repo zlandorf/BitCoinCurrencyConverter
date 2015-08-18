@@ -35,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ConverterFragment extends Fragment {
     private static final String BITCOIN = "BTC";
+    private static final String EURO = "EUR";
 
     private static final int BITCOIN_TO_MBTC = 1000;
 
@@ -55,6 +56,8 @@ public class ConverterFragment extends Fragment {
     private TextView mToText;
 
     private DecimalFormat mDecimalFormatter;
+
+    private boolean hasUserInteracted = false;
 
     /**
      * Use this factory method to create a new instance of
@@ -109,21 +112,43 @@ public class ConverterFragment extends Fragment {
         int fromItemPosition = mFromSpinner.getSelectedItemPosition();
         String previouslySelectTo = (String) mToSpinner.getSelectedItem();
 
+        if (!hasUserInteracted) {
+            // The spinners have been loaded and the user has not yet interacted with them
+            // In this case, we initialise the position of the from spinner on BTC
+            for (int i = 0; i < mFromSpinner.getCount(); i++) {
+                if (mFromSpinner.getItemAtPosition(i).equals(BITCOIN)) {
+                    mFromSpinner.setSelection(i);
+                    fromItemPosition = i;
+                    break;
+                }
+            }
+        }
+
         mToAdapter.clear();
         if (fromItemPosition != Spinner.INVALID_POSITION && fromItemPosition < mFromSpinner.getCount()) {
             String selectedFrom = (String) mFromSpinner.getItemAtPosition(fromItemPosition);
+            // fill the "to" spinner with possible rates
             for (Rate rate : mPairToRateMap.values()) {
                 if (rate.getFrom().equals(selectedFrom)) {
                     mToCurrencies.add(rate.getTo());
                 }
             }
         }
-
         mToAdapter.notifyDataSetChanged();
 
-        if (previouslySelectTo != null) {
-            for (int i = 0; i < mToCurrencies.size(); i++) {
-                if (mToCurrencies.get(i).equals(previouslySelectTo)) {
+        if (!hasUserInteracted) {
+            // The spinners have been loaded and the user has not yet interacted with them
+            // In this case, we initialise the position of the to spinner on EUR
+            for (int i = 0; i < mToSpinner.getCount(); i++) {
+                if (mToSpinner.getItemAtPosition(i).equals(EURO)) {
+                    mToSpinner.setSelection(i);
+                    break;
+                }
+            }
+        } else if (previouslySelectTo != null) {
+            // Try to keep the selected "to" rate if possible
+            for (int i = 0; i < mToSpinner.getCount(); i++) {
+                if (mToSpinner.getItemAtPosition(i).equals(previouslySelectTo)) {
                     // reset the previously selected "To" currency
                     mToSpinner.setSelection(i);
                     break;
@@ -159,6 +184,7 @@ public class ConverterFragment extends Fragment {
             @Override public void onNothingSelected(AdapterView<?> parent) {}
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                hasUserInteracted = true;
                 updateToSpinner();
                 updateConversion();
             }
@@ -177,6 +203,7 @@ public class ConverterFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
+                hasUserInteracted = true;
                 updateConversion();
             }
         });
@@ -192,6 +219,7 @@ public class ConverterFragment extends Fragment {
             @Override public void onNothingSelected(AdapterView<?> parent) {}
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                hasUserInteracted = true;
                 updateConversion();
             }
         });
