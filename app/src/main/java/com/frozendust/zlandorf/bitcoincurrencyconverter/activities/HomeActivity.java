@@ -1,5 +1,9 @@
 package com.frozendust.zlandorf.bitcoincurrencyconverter.activities;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
@@ -34,6 +38,14 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
 
             ratesTaskFragment = RatesTaskFragment.newInstance();
             fm.beginTransaction().add(ratesTaskFragment, RATES_TASK_FRAGMENT).commit();
+        }
+
+        if (!isNetworkAvailable()) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Your phone doesn't seem to be connected to the internet. This app needs a connection to the internet in order to work");
+            builder.setTitle("Error");
+            builder.setPositiveButton("OK", null);
+            builder.create().show();
         }
     }
 
@@ -86,5 +98,11 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
     @Override
     public void onRateSelected(Rate rate) {
         // TODO !
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 }
