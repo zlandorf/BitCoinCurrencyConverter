@@ -79,6 +79,10 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
             return true;
         }
 
+        if (id == R.id.action_refresh) {
+            retrieveTasks();
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
