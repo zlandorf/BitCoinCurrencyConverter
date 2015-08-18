@@ -49,7 +49,7 @@
             android:id="@+id/convertToText"
             android:layout_weight="4"
             android:layout_gravity="bottom"
-            android:gravity="center_vertical|right|end"
+            android:gravity="center_vertical|end"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:singleLine="true"
             android:ellipsize="end" />

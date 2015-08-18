@@ -35,8 +35,6 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
         FragmentManager fm = getSupportFragmentManager();
         mRatesTaskFragment = (RatesTaskFragment) fm.findFragmentByTag(RATES_TASK_FRAGMENT);
         if (mRatesTaskFragment == null) {
-            // Show the progress bar while retrieving the rates
-            findViewById(R.id.progress_bar_container).setVisibility(View.VISIBLE);
 
             mRatesTaskFragment = RatesTaskFragment.newInstance();
             fm.beginTransaction().add(mRatesTaskFragment, RATES_TASK_FRAGMENT).commit();
@@ -50,13 +48,14 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
     }
 
     private void retrieveTasks() {
+        // Show the progress bar while retrieving the rates
+        findViewById(R.id.progress_bar_container).setVisibility(View.VISIBLE);
         if (!isNetworkAvailable()) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("Your phone doesn't seem to be connected to the internet. This app needs a connection to the internet in order to work");
-            builder.setTitle("Error");
-            builder.setPositiveButton("OK", null);
-            builder.create().show();
+            findViewById(R.id.spinner_progress_bar).setVisibility(View.GONE);
+            findViewById(R.id.no_internet_text).setVisibility(View.VISIBLE);
         } else {
+            findViewById(R.id.spinner_progress_bar).setVisibility(View.VISIBLE);
+            findViewById(R.id.no_internet_text).setVisibility(View.GONE);
             mRatesTaskFragment.execute();
         }
     }
