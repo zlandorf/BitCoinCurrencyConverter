@@ -6,4 +6,5 @@
 
     <string name="convert_to_image_description">to</string>
     <string name="no_internet">Your phone doesn\'t seem to be connected to the internet. This app needs a connection to the internet in order to work.</string>
+    <string name="refreshing">Refreshing rates</string>
 </resources>
