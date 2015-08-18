@@ -25,27 +25,39 @@ import java.util.List;
 public class HomeActivity extends AppCompatActivity implements ConverterFragment.OnFragmentInteractionListener, RetrieveTask.RetrieveTaskListener, RateListFragment.RateListListener {
     private static final String RATES_TASK_FRAGMENT = "rates_task_fragment";
 
+    private RatesTaskFragment mRatesTaskFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
         FragmentManager fm = getSupportFragmentManager();
-        RatesTaskFragment ratesTaskFragment = (RatesTaskFragment) fm.findFragmentByTag(RATES_TASK_FRAGMENT);
-        if (ratesTaskFragment == null) {
+        mRatesTaskFragment = (RatesTaskFragment) fm.findFragmentByTag(RATES_TASK_FRAGMENT);
+        if (mRatesTaskFragment == null) {
             // Show the progress bar while retrieving the rates
             findViewById(R.id.progress_bar_container).setVisibility(View.VISIBLE);
 
-            ratesTaskFragment = RatesTaskFragment.newInstance();
-            fm.beginTransaction().add(ratesTaskFragment, RATES_TASK_FRAGMENT).commit();
+            mRatesTaskFragment = RatesTaskFragment.newInstance();
+            fm.beginTransaction().add(mRatesTaskFragment, RATES_TASK_FRAGMENT).commit();
         }
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        retrieveTasks();
+    }
+
+    private void retrieveTasks() {
         if (!isNetworkAvailable()) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage("Your phone doesn't seem to be connected to the internet. This app needs a connection to the internet in order to work");
             builder.setTitle("Error");
             builder.setPositiveButton("OK", null);
             builder.create().show();
+        } else {
+            mRatesTaskFragment.execute();
         }
     }
 

@@ -1,8 +1,10 @@
 package com.frozendust.zlandorf.bitcoincurrencyconverter.fragments;
 
 import android.app.Activity;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 
 import com.frozendust.zlandorf.bitcoincurrencyconverter.tasks.RetrieveTask;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.tasks.rates.KrakenRetrieveTask;
@@ -46,9 +48,24 @@ public class RatesTaskFragment extends Fragment {
         setRetainInstance(true);
 
         mTasks = new ArrayList<>();
-        //TODO : when implementing the refresh feature, make sure to not refresh an ongoing task
-        mTasks.add((RetrieveTask) new KrakenRetrieveTask(mListener).execute());
-        mTasks.add((RetrieveTask) new YahooRetrieveTask(mListener).execute());
+    }
+
+    public void execute() {
+        if (mTasks != null) {
+            // cancel previously running tasks
+            for (RetrieveTask task : mTasks) {
+                if (task.getStatus() != AsyncTask.Status.FINISHED) {
+                    task.cancel(true);
+                }
+            }
+            // clear tasks and run anew
+            mTasks.clear();
+
+            mTasks.add((RetrieveTask) new KrakenRetrieveTask(mListener).execute());
+            mTasks.add((RetrieveTask) new YahooRetrieveTask(mListener).execute());
+        } else {
+            Log.e("TEST", "TASKS ARE NULL");
+        }
     }
 
     /**
