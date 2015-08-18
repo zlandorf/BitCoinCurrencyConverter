@@ -1,6 +1,5 @@
 package com.frozendust.zlandorf.bitcoincurrencyconverter.activities;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -12,6 +11,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.frozendust.zlandorf.bitcoincurrencyconverter.R;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.ConverterFragment;
@@ -35,28 +35,18 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
         FragmentManager fm = getSupportFragmentManager();
         mRatesTaskFragment = (RatesTaskFragment) fm.findFragmentByTag(RATES_TASK_FRAGMENT);
         if (mRatesTaskFragment == null) {
+            // Show the progress bar while retrieving the rates for the first time
+            findViewById(R.id.progress_bar_container).setVisibility(View.VISIBLE);
 
+            // If there is no network available, show an error message
+            if (!isNetworkAvailable()) {
+                findViewById(R.id.spinner_progress_bar).setVisibility(View.GONE);
+                findViewById(R.id.no_internet_text).setVisibility(View.VISIBLE);
+            }
+
+            // Create the task fragment that will retrieve rates
             mRatesTaskFragment = RatesTaskFragment.newInstance();
             fm.beginTransaction().add(mRatesTaskFragment, RATES_TASK_FRAGMENT).commit();
-        }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        retrieveTasks();
-    }
-
-    private void retrieveTasks() {
-        // Show the progress bar while retrieving the rates
-        findViewById(R.id.progress_bar_container).setVisibility(View.VISIBLE);
-        if (!isNetworkAvailable()) {
-            findViewById(R.id.spinner_progress_bar).setVisibility(View.GONE);
-            findViewById(R.id.no_internet_text).setVisibility(View.VISIBLE);
-        } else {
-            findViewById(R.id.spinner_progress_bar).setVisibility(View.VISIBLE);
-            findViewById(R.id.no_internet_text).setVisibility(View.GONE);
-            mRatesTaskFragment.execute();
         }
     }
 
@@ -80,7 +70,12 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
         }
 
         if (id == R.id.action_refresh) {
-            retrieveTasks();
+            if (!isNetworkAvailable()) {
+                Toast.makeText(getApplicationContext(), R.string.no_internet, Toast.LENGTH_LONG).show();
+            } else if (mRatesTaskFragment != null) {
+                Toast.makeText(getApplicationContext(), R.string.refreshing, Toast.LENGTH_SHORT).show();
+                mRatesTaskFragment.execute();
+            }
         }
 
         return super.onOptionsItemSelected(item);

@@ -48,6 +48,7 @@ public class RatesTaskFragment extends Fragment {
         setRetainInstance(true);
 
         mTasks = new ArrayList<>();
+        execute();
     }
 
     public void execute() {
