@@ -1,0 +1,57 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="@dimen/activity_horizontal_margin"
+    android:layout_marginRight="@dimen/activity_horizontal_margin"
+    android:layout_marginTop="@dimen/activity_vertical_margin"
+    android:layout_marginBottom="@dimen/activity_vertical_margin" tools:context=".HomeActivity">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:id="@+id/progress_bar_container"
+        android:visibility="gone">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/spinner_progress_bar"
+            android:indeterminate="true"
+            style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Inverse" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:id="@+id/no_internet_text"
+            android:text="@string/no_internet" />
+    </LinearLayout>
+
+    <fragment
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/progress_bar_container"
+        android:name="com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.ConverterFragment"
+        android:id="@+id/fragment_converter"
+        tools:layout="@layout/fragment_converter" />
+
+    <View
+        android:id="@+id/separator"
+        android:layout_below="@+id/fragment_converter"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/grey">
+    </View>
+
+    <fragment
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:name="com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.RateListFragment"
+        android:id="@+id/fragment_rate_list"
+        android:layout_below="@+id/separator"
+        android:layout_centerHorizontal="true"
+        tools:layout="@layout/fragment_rate_list" />
+
+</RelativeLayout>
