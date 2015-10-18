@@ -1,0 +1,66 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.ConverterFragment">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:baselineAligned="true">
+
+        <Spinner
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/convertFromSpinner"
+            android:layout_weight="3"
+            android:spinnerMode="dropdown"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+        />
+
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:inputType="numberDecimal"
+            android:ems="10"
+            android:imeOptions="actionDone|flagNoExtractUi"
+            android:id="@+id/convertFromText"
+            android:layout_weight="4"
+            android:layout_gravity="bottom"
+            android:singleLine="true"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+        />
+
+        <ImageView
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:id="@+id/imageView"
+            android:contentDescription="@string/convert_to_image_description"
+            android:background="@drawable/ic_action"
+            android:adjustViewBounds="true"
+            android:layout_gravity="center_vertical"
+            android:cropToPadding="false"
+            android:focusable="false"
+        />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/convertToText"
+            android:layout_weight="4"
+            android:layout_gravity="bottom"
+            android:gravity="center_vertical|end"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:singleLine="true"
+            android:ellipsize="end" />
+
+        <Spinner
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:id="@+id/convertToSpinner"
+            android:layout_weight="3"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+        />
+
+    </LinearLayout>
+</FrameLayout>

@@ -1,5 +1,7 @@
 package com.frozendust.zlandorf.bitcoincurrencyconverter.tasks;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +16,7 @@ public class HttpTask {
     }
 
     public String request(String urlString, String requestMethod) throws IOException {
+        Log.i("HTTP_TASK", "Requesting " + urlString);
         InputStream inputStream = null;
         try {
             HttpURLConnection connection = (HttpURLConnection) (new URL(urlString)).openConnection();

@@ -27,19 +27,10 @@ import java.util.List;
  * interface.
  */
 public class RateListFragment extends Fragment implements AbsListView.OnItemClickListener {
+
     private RateListListener mListener;
-
-    /**
-     * The fragment's ListView/GridView.
-     */
     private AbsListView mListView;
-
-    /**
-     * The Adapter which will be used to populate the ListView/GridView with
-     * Views.
-     */
     private RateAdapter mAdapter;
-
     private List<Rate> mRates;
 
     public static RateListFragment newInstance() {
@@ -121,16 +112,6 @@ public class RateListFragment extends Fragment implements AbsListView.OnItemClic
         }
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface RateListListener {
         void onRateSelected(Rate rate);
     }

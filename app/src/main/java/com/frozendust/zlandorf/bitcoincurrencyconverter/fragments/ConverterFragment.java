@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -97,7 +98,7 @@ public class ConverterFragment extends Fragment {
                     try {
                         convertedValue = Double.parseDouble(fromValueAsString) * selectedRate.getValue();
                     } catch (NumberFormatException e) {
-                        // do nothing
+                        Log.e("CONVERTER_FRAGMENT", "Failed to parse double " + fromValueAsString);
                     }
                 }
             }
@@ -172,12 +173,15 @@ public class ConverterFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_converter, container, false);
+        createFromItemsViews(view);
+        createToItemsViews(view);
+        return view;
+    }
 
-        /* ----- FROM ITEMS ----- */
-        /* From Adapter */
+    private void createFromItemsViews(View view) {
         mFromAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, mFromCurrencies);
         mFromAdapter.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);
-        /* From Spinner */
+
         mFromSpinner = (Spinner) view.findViewById(R.id.convertFromSpinner);
         mFromSpinner.setAdapter(mFromAdapter);
         mFromSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -189,7 +193,7 @@ public class ConverterFragment extends Fragment {
                 updateConversion();
             }
         });
-        /* From Text Input */
+
         mFromTextInput = (TextView) view.findViewById(R.id.convertFromText);
         mFromTextInput.setText("1.0");
         mFromTextInput.addTextChangedListener(new TextWatcher() {
@@ -207,12 +211,12 @@ public class ConverterFragment extends Fragment {
                 updateConversion();
             }
         });
+    }
 
-        /* ----- TO ITEMS ----- */
-        /* To Adapter */
+    private void createToItemsViews(View view) {
         mToAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, mToCurrencies);
         mToAdapter.setDropDownViewResource(android.R.layout.simple_list_item_single_choice);
-        /* To Spinner */
+
         mToSpinner = (Spinner) view.findViewById(R.id.convertToSpinner);
         mToSpinner.setAdapter(mToAdapter);
         mToSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -223,11 +227,9 @@ public class ConverterFragment extends Fragment {
                 updateConversion();
             }
         });
-        /* To Text */
+
         mToText = (TextView) view.findViewById(R.id.convertToText);
         mToText.setText("0.0");
-
-        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
