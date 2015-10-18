@@ -7,13 +7,14 @@
         android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:baselineAligned="true">
+        android:baselineAligned="true"
+        android:layout_marginBottom="5dp">
 
         <Spinner
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:id="@+id/convertFromSpinner"
-            android:layout_weight="3"
+            android:layout_weight="1"
             android:spinnerMode="dropdown"
             android:textAppearance="?android:attr/textAppearanceSmall"
         />
@@ -25,7 +26,7 @@
             android:ems="10"
             android:imeOptions="actionDone|flagNoExtractUi"
             android:id="@+id/convertFromText"
-            android:layout_weight="4"
+            android:layout_weight="3"
             android:layout_gravity="bottom"
             android:singleLine="true"
             android:textAppearance="?android:attr/textAppearanceSmall"
@@ -47,7 +48,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:id="@+id/convertToText"
-            android:layout_weight="4"
+            android:layout_weight="3"
             android:layout_gravity="bottom"
             android:gravity="center_vertical|end"
             android:textAppearance="?android:attr/textAppearanceSmall"
@@ -58,7 +59,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:id="@+id/convertToSpinner"
-            android:layout_weight="3"
+            android:layout_weight="1"
             android:textAppearance="?android:attr/textAppearanceSmall"
         />
 

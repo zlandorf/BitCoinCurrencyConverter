@@ -7,29 +7,33 @@
         android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:baselineAligned="true">
+        android:baselineAligned="true"
+        android:layout_marginBottom="5dp">
 
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:baselineAligned="true">
+            android:baselineAligned="true"
+            android:layout_marginBottom="5dp">
 
             <Spinner
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:id="@+id/convertFromSpinner"
+                android:layout_weight="2"
                 android:spinnerMode="dropdown"
                 android:textAppearance="?android:attr/textAppearanceSmall"
             />
 
             <EditText
-                android:layout_width="fill_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:inputType="numberDecimal"
                 android:ems="10"
                 android:imeOptions="actionDone|flagNoExtractUi"
                 android:id="@+id/convertFromText"
+                android:layout_weight="7"
                 android:layout_gravity="bottom"
                 android:singleLine="true"
                 android:textAppearance="?android:attr/textAppearanceSmall"
@@ -43,9 +47,10 @@
             android:baselineAligned="true">
 
             <Spinner
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:id="@+id/convertToSpinner"
+                android:layout_weight="2"
                 android:textAppearance="?android:attr/textAppearanceSmall"
             />
 
@@ -53,8 +58,8 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:id="@+id/convertToText"
+                android:layout_weight="7"
                 android:layout_gravity="bottom"
-                android:gravity="center_vertical|end"
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:singleLine="true"
                 android:ellipsize="end" />
