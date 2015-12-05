@@ -1,13 +1,14 @@
 package com.frozendust.zlandorf.bitcoincurrencyconverter.tasks.rates;
 
+import android.util.Log;
+
 import com.frozendust.zlandorf.bitcoincurrencyconverter.models.entities.Rate;
-import com.frozendust.zlandorf.bitcoincurrencyconverter.tasks.HttpTask;
+import com.frozendust.zlandorf.bitcoincurrencyconverter.services.HttpService;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.tasks.RetrieveTask;
+import com.google.common.base.Joiner;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This task retrieves fiat exchange rates from Yahoo
@@ -18,53 +19,53 @@ import java.util.Map;
  *
  */
 public class YahooRetrieveTask extends RetrieveTask {
+
+    protected static final String[] PAIRS_TO_RETRIEVE = new String[]{
+        YahooPair.EUR_USD.getId(),
+        YahooPair.EUR_CAD.getId(),
+        YahooPair.EUR_GBP.getId(),
+        YahooPair.EUR_CNY.getId(),
+        YahooPair.USD_CAD.getId(),
+        YahooPair.USD_GBP.getId(),
+        YahooPair.USD_CNY.getId(),
+        YahooPair.CAD_GBP.getId(),
+        YahooPair.CAD_CNY.getId(),
+        YahooPair.GBP_CNY.getId(),
+    };
+
     //EUR USD , EUR CNY , EUR GBP , USD CNY , USD GBP , GBP CNY
-    protected static String YAHOO_URL = "http://download.finance.yahoo.com/d/quotes.csv?s="+
-            "EURUSD=X,"+
-            "EURCAD=X,"+
-            "EURGBP=X,"+
-            "EURCNY=X,"+
-            "USDCAD=X,"+
-            "USDGBP=X,"+
-            "USDCNY=X,"+
-            "CADGBP=X,"+
-            "CADCNY=X,"+
-            "GBPCNY=X"+
-            "&f=sl1&e=.csv";
+    protected static String YAHOO_URL = "http://download.finance.yahoo.com/d/quotes.csv?s=" + Joiner.on(",").join(PAIRS_TO_RETRIEVE) + "&f=sl1&e=.csv";
 
-    Map<String, Rate> mPairMap;
+    private HttpService httpService;
 
-    public YahooRetrieveTask(RetrieveTaskListener listener) {
+    public YahooRetrieveTask(RetrieveTaskListener listener, HttpService httpService) {
         super(listener);
-        mPairMap = new HashMap<>();
-        //!\ Beware, when changing the values below, you must change the constant YAHOO_URL
-        mPairMap.put("EURUSD", new Rate("EUR", "USD"));
-        mPairMap.put("EURCAD", new Rate("EUR", "CAD"));
-        mPairMap.put("EURGBP", new Rate("EUR", "GBP"));
-        mPairMap.put("EURCNY", new Rate("EUR", "CNY"));
-        mPairMap.put("USDCAD", new Rate("USD", "CAD"));
-        mPairMap.put("USDGBP", new Rate("USD", "GBP"));
-        mPairMap.put("USDCNY", new Rate("USD", "CNY"));
-        mPairMap.put("CADGBP", new Rate("CAD", "GBP"));
-        mPairMap.put("CADCNY", new Rate("CAD", "CNY"));
-        mPairMap.put("GBPCNY", new Rate("GBP", "CNY"));
+        this.httpService = httpService;
     }
 
     public List<Rate> retrieveRates() throws Exception {
         List<Rate> rates = new ArrayList<>();
-        String rawResponse = (new HttpTask()).request(YAHOO_URL);
+        String rawResponse = httpService.request(YAHOO_URL);
+        if (rawResponse == null) return rates;
 
-        for (String line : rawResponse.replaceAll("\"|=X", "").split("\n")) {
+        for (String line : rawResponse.split("\n")) {
             String [] data = line.split(",");
-            String pair = data[0];
-            double value = Double.parseDouble(data[1]);
-
-            Rate rate = mPairMap.get(pair);
-            if (rate != null) {
-                rate.setValue(value);
-                rates.add(rate);
+            if (data.length < 2) {
+                Log.w("YahooRetrieveTask", String.format("Yahoo data should have at least two columns '%s'", line));
+                continue;
             }
+            String yahooPairId = data[0].replace("\"", "");
+            YahooPair yahooPair = YahooPair.getForId(yahooPairId);
+
+            if (yahooPair == null) {
+                Log.w("YahooRetrieveTask", String.format("The pair %s is not recognised", yahooPairId));
+                continue;
+            }
+
+            double value = Double.parseDouble(data[1]);
+            rates.add(new Rate(yahooPair.getPair(), value));
         }
         return rates;
     }
+
 }

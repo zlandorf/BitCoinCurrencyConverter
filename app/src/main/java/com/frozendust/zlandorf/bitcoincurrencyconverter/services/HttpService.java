@@ -1,4 +1,4 @@
-package com.frozendust.zlandorf.bitcoincurrencyconverter.tasks;
+package com.frozendust.zlandorf.bitcoincurrencyconverter.services;
 
 import android.util.Log;
 
@@ -9,7 +9,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class HttpTask {
+public class HttpService {
 
     public String request(String urlString) throws IOException {
         return request(urlString, "GET");

@@ -16,6 +16,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.frozendust.zlandorf.bitcoincurrencyconverter.R;
+import com.frozendust.zlandorf.bitcoincurrencyconverter.models.entities.Currency;
+import com.frozendust.zlandorf.bitcoincurrencyconverter.models.entities.Pair;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.models.entities.Rate;
 
 import java.text.DecimalFormat;
@@ -35,29 +37,28 @@ import java.util.concurrent.ConcurrentHashMap;
  * create an instance of this fragment.
  */
 public class ConverterFragment extends Fragment {
-    private static final String BITCOIN = "BTC";
-    private static final String EURO = "EUR";
-    private static final String BTC_TO_EURO_PAIR = BITCOIN + EURO;
-
-    private static final int BITCOIN_TO_MBTC_RATIO = 1000;
+    private static final double BITCOIN_TO_MBTC_RATIO = 1000.;
+    private static final Pair BTC_EUR_PAIR = new Pair(Currency.BTC, Currency.EUR);
 
     private OnFragmentInteractionListener mListener;
 
     private Spinner mFromSpinner;
     private Spinner mToSpinner;
 
-    private List<String> mFromCurrencies;
-    private List<String> mToCurrencies;
+    private List<Currency> mFromCurrencies;
+    private List<Currency> mToCurrencies;
 
-    private ArrayAdapter<String> mFromAdapter;
-    private ArrayAdapter<String> mToAdapter;
+    private ArrayAdapter<Currency> mFromAdapter;
+    private ArrayAdapter<Currency> mToAdapter;
 
-    private Map<String, Rate> mPairToRateMap;
+    private Map<Integer, Rate> mPairToRateMap;
 
     private TextView mFromTextInput;
     private TextView mToText;
 
     private DecimalFormat mDecimalFormatter;
+
+    private boolean hasUserInteracted = false;
 
     /**
      * Use this factory method to create a new instance of
@@ -113,20 +114,24 @@ public class ConverterFragment extends Fragment {
         if (rates == null || rates.isEmpty()) {
             return;
         }
-        boolean doesBTCToEURExist = mPairToRateMap.containsKey(BTC_TO_EURO_PAIR);
+
         updateFromSpinner(getCompletedRates(rates));
 
-        boolean hasBTCToEURBeenAdded = !doesBTCToEURExist && mPairToRateMap.containsKey(BTC_TO_EURO_PAIR);
-        if (hasBTCToEURBeenAdded) {
-            // when the spinners are initialised, set the currency rates to BTC/EUR
-            selectSpinnerCurrency(mFromSpinner, BITCOIN);
+        // If the user hasn't interacted yet, initialise the spinners on the BTC/EUR pair when
+        // the rates are retrieved
+        if (!hasUserInteracted && mPairToRateMap.containsKey(BTC_EUR_PAIR.hashCode())) {
+            selectSpinnerCurrency(mFromSpinner, Currency.BTC);
         }
+
         updateToSpinner();
-        if (hasBTCToEURBeenAdded) {
-            // when the spinners are initialised, set the currency rates to BTC/EUR
-            selectSpinnerCurrency(mToSpinner, EURO);
+
+        if (!hasUserInteracted && mPairToRateMap.containsKey(BTC_EUR_PAIR.hashCode())) {
+            selectSpinnerCurrency(mToSpinner, Currency.EUR);
         }
+
         updateConversion();
+
+        //TODO : select BTC / EUR pair if the user hasn't interacted yet
     }
 
     private void createFromItemsViews(View view) {
@@ -142,6 +147,7 @@ public class ConverterFragment extends Fragment {
 
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                hasUserInteracted = true;
                 updateToSpinner();
                 updateConversion();
             }
@@ -160,6 +166,7 @@ public class ConverterFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
+                hasUserInteracted = true;
                 updateConversion();
             }
         });
@@ -175,6 +182,7 @@ public class ConverterFragment extends Fragment {
             @Override public void onNothingSelected(AdapterView<?> parent) {}
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                hasUserInteracted = true;
                 updateConversion();
             }
         });
@@ -193,15 +201,15 @@ public class ConverterFragment extends Fragment {
         double convertedValue = 0;
 
         if (
-                fromItemPosition != Spinner.INVALID_POSITION
-                        && toItemPosition != Spinner.INVALID_POSITION
-                        && fromItemPosition < mFromSpinner.getCount()
-                        && toItemPosition < mToSpinner.getCount()
-                ) {
-            String selectedFrom = (String) mFromSpinner.getItemAtPosition(fromItemPosition);
-            String selectedTo = (String) mToSpinner.getItemAtPosition(toItemPosition);
+            fromItemPosition != Spinner.INVALID_POSITION
+            && toItemPosition != Spinner.INVALID_POSITION
+            && fromItemPosition < mFromSpinner.getCount()
+            && toItemPosition < mToSpinner.getCount()
+        ) {
+            Currency selectedFrom = (Currency) mFromSpinner.getItemAtPosition(fromItemPosition);
+            Currency selectedTo = (Currency) mToSpinner.getItemAtPosition(toItemPosition);
 
-            Rate selectedRate = mPairToRateMap.get(selectedFrom + selectedTo);
+            Rate selectedRate = mPairToRateMap.get(new Pair(selectedFrom, selectedTo).hashCode());
             if (selectedRate != null) {
                 String fromValueAsString = mFromTextInput.getText().toString();
                 if (!fromValueAsString.isEmpty()) {
@@ -218,11 +226,11 @@ public class ConverterFragment extends Fragment {
 
     private void updateFromSpinner(List<Rate> rates) {
         for (Rate rate: rates) {
-            if (!mFromCurrencies.contains(rate.getFrom())) {
-                mFromCurrencies.add(rate.getFrom());
+            if (!mFromCurrencies.contains(rate.getPair().getFrom())) {
+                mFromCurrencies.add(rate.getPair().getFrom());
             }
             // This will update "old" rates in case of a refresh
-            mPairToRateMap.put(rate.getPair(), rate);
+            mPairToRateMap.put(rate.getPair().hashCode(), rate);
         }
         mFromAdapter.notifyDataSetChanged();
     }
@@ -230,17 +238,17 @@ public class ConverterFragment extends Fragment {
     /**
      * Update the "To" Spinner to only display currencies the selected currency can convert to
      */
-    private void updateToSpinner() {
+    private void  updateToSpinner() {
         int fromItemPosition = mFromSpinner.getSelectedItemPosition();
-        String previouslySelectedTo = (String) mToSpinner.getSelectedItem();
+        Currency previouslySelectedTo = (Currency) mToSpinner.getSelectedItem();
 
         mToAdapter.clear();
         if (fromItemPosition != Spinner.INVALID_POSITION && fromItemPosition < mFromSpinner.getCount()) {
-            String selectedFrom = (String) mFromSpinner.getItemAtPosition(fromItemPosition);
+            Currency selectedFrom = (Currency) mFromSpinner.getItemAtPosition(fromItemPosition);
             // fill the "to" spinner with possible rates
             for (Rate rate : mPairToRateMap.values()) {
-                if (rate.getFrom().equals(selectedFrom)) {
-                    mToCurrencies.add(rate.getTo());
+                if (rate.getPair().getFrom().equals(selectedFrom)) {
+                    mToCurrencies.add(rate.getPair().getTo());
                 }
             }
         }
@@ -252,7 +260,7 @@ public class ConverterFragment extends Fragment {
         }
     }
 
-    private void selectSpinnerCurrency(Spinner spinner, String currency) {
+    private void selectSpinnerCurrency(Spinner spinner, Currency currency) {
         for (int i = 0; i < spinner.getCount(); i++) {
             if (spinner.getItemAtPosition(i).equals(currency)) {
                 spinner.setSelection(i);
@@ -271,7 +279,7 @@ public class ConverterFragment extends Fragment {
         for (Rate rate : rates) {
             if (rate.getValue() > 0) {
                 // add inverted rates to be able to convert both ways
-                completedRates.add(new Rate(rate.getTo(), rate.getFrom(), 1. / rate.getValue()));
+                completedRates.add(new Rate(rate.getPair().invert(), 1. / rate.getValue()));
             }
         }
 
@@ -280,11 +288,11 @@ public class ConverterFragment extends Fragment {
             Rate rate = completedRates.get(i);
 
             // If a rate is from or to BTC, add rates with mBTC
-            if (rate.getFrom().equals(BITCOIN)) {
-                completedRates.add(new Rate("mBTC", rate.getTo(), rate.getValue() / BITCOIN_TO_MBTC_RATIO));
+            if (rate.getPair().getFrom().equals(Currency.BTC)) {
+                completedRates.add(new Rate(new Pair(Currency.mBTC, rate.getPair().getTo()), rate.getValue() / BITCOIN_TO_MBTC_RATIO));
             }
-            if (rate.getTo().equals(BITCOIN)) {
-                completedRates.add(new Rate(rate.getFrom(), "mBTC", rate.getValue() * BITCOIN_TO_MBTC_RATIO));
+            if (rate.getPair().getTo().equals(Currency.BTC)) {
+                completedRates.add(new Rate(new Pair(rate.getPair().getFrom(), Currency.mBTC), rate.getValue() * BITCOIN_TO_MBTC_RATIO));
             }
         }
 

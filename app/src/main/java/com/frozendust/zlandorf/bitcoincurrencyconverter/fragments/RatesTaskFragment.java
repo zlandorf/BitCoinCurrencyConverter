@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
+import com.frozendust.zlandorf.bitcoincurrencyconverter.services.HttpService;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.tasks.RetrieveTask;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.tasks.rates.KrakenRetrieveTask;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.tasks.rates.YahooRetrieveTask;
@@ -16,6 +17,7 @@ import java.util.List;
 public class RatesTaskFragment extends Fragment {
     protected RetrieveTask.RetrieveTaskListener mListener;
     protected List<RetrieveTask> mTasks;
+    protected HttpService httpService;
 
     public static RatesTaskFragment newInstance() {
         return new RatesTaskFragment();
@@ -48,6 +50,7 @@ public class RatesTaskFragment extends Fragment {
         setRetainInstance(true);
 
         mTasks = new ArrayList<>();
+        httpService = new HttpService();
         execute();
     }
 
@@ -62,8 +65,8 @@ public class RatesTaskFragment extends Fragment {
             // clear tasks and run anew
             mTasks.clear();
 
-            mTasks.add((RetrieveTask) new KrakenRetrieveTask(mListener).execute());
-            mTasks.add((RetrieveTask) new YahooRetrieveTask(mListener).execute());
+            mTasks.add((RetrieveTask) new KrakenRetrieveTask(mListener, httpService).execute());
+            mTasks.add((RetrieveTask) new YahooRetrieveTask(mListener, httpService).execute());
         } else {
             Log.e("TEST", "TASKS ARE NULL");
         }

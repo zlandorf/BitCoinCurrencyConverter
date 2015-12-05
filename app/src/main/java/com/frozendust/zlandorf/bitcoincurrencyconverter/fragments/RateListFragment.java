@@ -47,12 +47,12 @@ public class RateListFragment extends Fragment implements AbsListView.OnItemClic
     public void onRatesRetrieved(List<Rate> rates) {
         Log.d("RATE_LIST_FRAGMENT", String.format("Rates received : %s\n", rates.size()));
         mainLoop: for (Rate rate : rates) {
-            for (Rate existingRate : mRates) {
-                if (existingRate.getFrom().equals(rate.getFrom())
-                    && existingRate.getTo().equals(rate.getTo())) {
+            for (int i = 0; i < mRates.size(); i++) {
+                Rate existingRate = mRates.get(i);
+                if (mRates.get(i).getPair().equals(rate.getPair())) {
                     Log.d("RATE_LIST_FRAGMENT", String.format("updating existing rate [%s] with new values [%s]\n", existingRate, rate));
                     // Rate already listed, update it and go to next rate
-                    existingRate.setValue(rate.getValue());
+                    mRates.set(i, rate);
                     continue mainLoop;
                 }
             }

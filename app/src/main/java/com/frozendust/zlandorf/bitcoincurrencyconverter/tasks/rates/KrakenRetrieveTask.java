@@ -1,16 +1,17 @@
 package com.frozendust.zlandorf.bitcoincurrencyconverter.tasks.rates;
 
+import android.util.Log;
+
 import com.frozendust.zlandorf.bitcoincurrencyconverter.models.entities.Rate;
-import com.frozendust.zlandorf.bitcoincurrencyconverter.tasks.HttpTask;
+import com.frozendust.zlandorf.bitcoincurrencyconverter.services.HttpService;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.tasks.RetrieveTask;
+import com.google.common.base.Joiner;
 
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This Task retrieves crypto/fiat exchange rates from Kraken's public ticker
@@ -19,49 +20,50 @@ import java.util.Map;
  *
  */
 public class KrakenRetrieveTask extends RetrieveTask {
-    protected static final String KRAKEN_URL =
-        "https://api.kraken.com/0/public/Ticker?pair="+
-            "XXBTZEUR,"+
-            "XXBTZUSD,"+
-            "XXBTZCAD,"+
-            "XXBTXLTC,"+
-            "XLTCZEUR,"+
-            "XLTCZUSD";
 
-    Map<String, Rate> mPairMap;
+    protected static final String[] PAIRS_TO_RETRIEVE = new String[]{
+        KrakenPair.BTC_EUR.getId(),
+        KrakenPair.BTC_USD.getId(),
+        KrakenPair.BTC_CAD.getId(),
+        KrakenPair.BTC_LTC.getId(),
+        KrakenPair.LTC_EUR.getId(),
+        KrakenPair.LTC_USD.getId()
+    };
 
-    public KrakenRetrieveTask(RetrieveTaskListener listener) {
+    protected static final String KRAKEN_URL = "https://api.kraken.com/0/public/Ticker?pair=" + Joiner.on(",").join(PAIRS_TO_RETRIEVE);
+
+    private HttpService httpService;
+
+    public KrakenRetrieveTask(RetrieveTaskListener listener, HttpService httpService) {
         super(listener);
-        mPairMap = new HashMap<>();
-        //!\ Beware, when changing the values below, you must change the constant KRAKEN_URL
-        mPairMap.put("XXBTZEUR", new Rate("BTC", "EUR"));
-        mPairMap.put("XXBTZUSD", new Rate("BTC", "USD"));
-        mPairMap.put("XXBTZCAD", new Rate("BTC", "CAD"));
-        mPairMap.put("XXBTXLTC", new Rate("BTC", "LTC"));
-        mPairMap.put("XLTCZEUR", new Rate("LTC", "EUR"));
-        mPairMap.put("XLTCZUSD", new Rate("LTC", "USD"));
+        this.httpService = httpService;
     }
 
     public List<Rate> retrieveRates() throws Exception {
         List<Rate> rates = new ArrayList<>();
-        String rawResponse = (new HttpTask()).request(KRAKEN_URL);
+        String rawResponse = httpService.request(KRAKEN_URL);
+        if (rawResponse == null) return rates;
         JSONObject result = new JSONObject(rawResponse).getJSONObject("result");
 
         if (result == null) {
+            Log.e("KrakenRetrieveTask", String.format("Failed to parse the response to JSON '%s'", rawResponse));
             return rates;
         }
 
         Iterator<String> pairIterator = result.keys();
         while (pairIterator.hasNext()) {
-            String krakenPairName = pairIterator.next();
-            Rate rate = mPairMap.get(krakenPairName);
-
-            if (null != rate) {
-                JSONObject tickerInfo = result.getJSONObject(krakenPairName);
-                rate.setValue(tickerInfo.getJSONArray("c").getDouble(0));
-                rates.add(rate);
+            String krakenPairId = pairIterator.next();
+            KrakenPair krakenPair = KrakenPair.getForId(krakenPairId);
+            if (krakenPair == null) {
+                Log.w("KrakenRetrieveTask", String.format("The pair %s is not recognised", krakenPairId));
+                continue;
             }
+            JSONObject tickerInfo = result.getJSONObject(krakenPair.getId());
+            double value = tickerInfo.getJSONArray("c").getDouble(0);
+            rates.add(new Rate(krakenPair.getPair(), value));
         }
+
         return rates;
     }
+
 }

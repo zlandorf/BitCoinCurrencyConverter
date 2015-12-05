@@ -28,7 +28,7 @@ public class RateAdapter extends ArrayAdapter<Rate> {
         TextView pairText = (TextView) convertView.findViewById(R.id.rate_pair_name);
         TextView valueText = (TextView) convertView.findViewById(R.id.rate_value);
 
-        pairText.setText(String.format("%s/%s :", rate.getFrom(), rate.getTo()));
+        pairText.setText(String.format("%s/%s :", rate.getPair().getFrom(), rate.getPair().getTo()));
         valueText.setText(String.valueOf(rate.getValue()));
 
         return convertView;
