@@ -129,6 +129,16 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
     }
 
     @Override
+    public void onTaskFailed(final String provider) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+            Toast.makeText(getApplicationContext(), getString(R.string.rate_retrieval_failed, provider), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
     public void onRateSelected(Rate rate) {
         // TODO !
     }

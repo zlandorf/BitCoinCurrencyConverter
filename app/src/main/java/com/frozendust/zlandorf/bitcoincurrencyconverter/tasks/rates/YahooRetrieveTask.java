@@ -43,6 +43,11 @@ public class YahooRetrieveTask extends RetrieveTask {
         this.httpService = httpService;
     }
 
+    @Override
+    public String getProviderName() {
+        return "Yahoo";
+    }
+
     public List<Rate> retrieveRates() throws Exception {
         List<Rate> rates = new ArrayList<>();
         String rawResponse = httpService.request(YAHOO_URL);

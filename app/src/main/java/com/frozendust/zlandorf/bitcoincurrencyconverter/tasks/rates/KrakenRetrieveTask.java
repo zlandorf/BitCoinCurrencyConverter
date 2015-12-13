@@ -39,6 +39,11 @@ public class KrakenRetrieveTask extends RetrieveTask {
         this.httpService = httpService;
     }
 
+    @Override
+    public String getProviderName() {
+        return "Kraken";
+    }
+
     public List<Rate> retrieveRates() throws Exception {
         List<Rate> rates = new ArrayList<>();
         String rawResponse = httpService.request(KRAKEN_URL);

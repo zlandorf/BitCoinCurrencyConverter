@@ -7,6 +7,7 @@
     <string name="convert_to_image_description">to</string>
     <string name="no_internet">Your phone doesn\'t seem to be connected to the internet. This app needs a connection to the internet in order to work.</string>
     <string name="refreshing">Refreshing rates</string>
+    <string name="rate_retrieval_failed">Failed to retrieve rates from %1$s</string>
     <string name="title_activity_settings">Settings</string>
 
     <!-- Strings related to Settings -->

@@ -11,6 +11,7 @@ public abstract class RetrieveTask extends AsyncTask<Void, Void, List<Rate>> {
 
     public interface RetrieveTaskListener {
         void onTaskFinished(List<Rate> rates);
+        void onTaskFailed(String provider);
     }
 
     protected RetrieveTaskListener mListener;
@@ -33,6 +34,8 @@ public abstract class RetrieveTask extends AsyncTask<Void, Void, List<Rate>> {
      */
     public abstract List<Rate> retrieveRates() throws Exception;
 
+    public abstract String getProviderName();
+
     @Override
     protected void onPostExecute(List<Rate> rates) {
         super.onPostExecute(rates);
@@ -46,6 +49,7 @@ public abstract class RetrieveTask extends AsyncTask<Void, Void, List<Rate>> {
         try {
             return retrieveRates();
         } catch (Exception e) {
+            mListener.onTaskFailed(getProviderName());
             Log.e("RETRIEVE_TASK", "Exception retrieving rates : [" + e.getMessage() + "] task : ["+getClass().getSimpleName()+"]");
             e.printStackTrace();
         }
