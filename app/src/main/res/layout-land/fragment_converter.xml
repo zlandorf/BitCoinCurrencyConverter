@@ -14,7 +14,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:id="@+id/convertFromSpinner"
-            android:layout_weight="1"
+            android:layout_weight="1.2"
             android:spinnerMode="dropdown"
             android:textAppearance="?android:attr/textAppearanceSmall"
         />
@@ -58,8 +58,9 @@
         <Spinner
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:spinnerMode="dropdown"
             android:id="@+id/convertToSpinner"
-            android:layout_weight="1"
+            android:layout_weight="1.2"
             android:textAppearance="?android:attr/textAppearanceSmall"
         />
 
