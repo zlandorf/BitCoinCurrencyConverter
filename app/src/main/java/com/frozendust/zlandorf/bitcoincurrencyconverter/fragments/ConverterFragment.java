@@ -106,6 +106,42 @@ public class ConverterFragment extends Fragment {
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("from", mFromSpinner.getSelectedItemPosition());
+        outState.putInt("to", mToSpinner.getSelectedItemPosition());
+    }
+
+    @Override
+    public void onViewStateRestored(Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        if (savedInstanceState != null) {
+            mFromSpinner.setSelection(savedInstanceState.getInt("from"));
+            mToSpinner.setSelection(savedInstanceState.getInt("to"));
+        }
+
+        mFromSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                updateToSpinner();
+                updateConversion();
+            }
+        });
+
+        mToSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override public void onNothingSelected(AdapterView<?> parent) {}
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                updateConversion();
+            }
+        });
+    }
+
+    @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
@@ -161,17 +197,6 @@ public class ConverterFragment extends Fragment {
         mFromSpinner = (Spinner) view.findViewById(R.id.convertFromSpinner);
         mFromSpinner.setAdapter(mFromAdapter);
         mFromSpinner.setOnTouchListener(new SpinnerTouchListener());
-        mFromSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                updateToSpinner();
-                updateConversion();
-            }
-        });
 
         mFromTextInput = (TextView) view.findViewById(R.id.convertFromText);
         mFromTextInput.setText("1.0");
@@ -199,13 +224,6 @@ public class ConverterFragment extends Fragment {
         mToSpinner = (Spinner) view.findViewById(R.id.convertToSpinner);
         mToSpinner.setAdapter(mToAdapter);
         mToSpinner.setOnTouchListener(new SpinnerTouchListener());
-        mToSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override public void onNothingSelected(AdapterView<?> parent) {}
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                updateConversion();
-            }
-        });
 
         mToText = (TextView) view.findViewById(R.id.convertToText);
         mToText.setText("0.0");
@@ -251,7 +269,7 @@ public class ConverterFragment extends Fragment {
      */
     private void  updateToSpinner() {
         Currency selectedFrom = (Currency) mFromSpinner.getSelectedItem();
-        Currency previouslySelectedTo = (Currency) mToSpinner.getSelectedItem();
+        Currency selectedTo = (Currency) mToSpinner.getSelectedItem();
 
         mToAdapter.clear();
         if (selectedFrom != null) {
@@ -264,9 +282,9 @@ public class ConverterFragment extends Fragment {
         }
         mToAdapter.notifyDataSetChanged();
 
-        if (previouslySelectedTo != null) {
+        if (selectedTo != null) {
             // Try to keep the selected "to" rate if possible
-            selectSpinnerCurrency(mToSpinner, previouslySelectedTo);
+            selectSpinnerCurrency(mToSpinner, selectedTo);
         }
     }
 
