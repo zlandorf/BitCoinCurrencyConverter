@@ -1,5 +1,6 @@
 package com.frozendust.zlandorf.bitcoincurrencyconverter.activities;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -16,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.frozendust.zlandorf.bitcoincurrencyconverter.AnalyticsApplication;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.R;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.ConverterFragment;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.RateListFragment;
@@ -23,6 +25,8 @@ import com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.RatesTaskFragm
 import com.frozendust.zlandorf.bitcoincurrencyconverter.models.entities.Pair;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.models.entities.Rate;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.tasks.RetrieveTask;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,14 +34,17 @@ import java.util.List;
 public class HomeActivity extends AppCompatActivity implements ConverterFragment.OnFragmentInteractionListener, RetrieveTask.RetrieveTaskListener, RateListFragment.RateListListener {
     public static final String AVAILABLE_PAIRS_EXTRA = "available_pairs";
     private static final String RATES_TASK_FRAGMENT = "rates_task_fragment";
+    private static final String SCREEN_NAME = "Home_screen";
 
     private RatesTaskFragment mRatesTaskFragment;
-    private ArrayList<Pair> availablePairs;
+    private Tracker tracker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        tracker = ((AnalyticsApplication) getApplication()).getDefaultTracker();
 
         // Set default preferences values if they have never been set before
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
@@ -75,6 +82,13 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        tracker.setScreenName(SCREEN_NAME);
+        tracker.send(new HitBuilders.ScreenViewBuilder().build());
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -84,6 +98,7 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
+            ArrayList<Pair> availablePairs = ((ConverterFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_converter)).getAvailablePairs();
             intent.putParcelableArrayListExtra(AVAILABLE_PAIRS_EXTRA, availablePairs);
             startActivity(intent);
 
@@ -118,7 +133,6 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
         ConverterFragment converterFragment = (ConverterFragment) fm.findFragmentById(R.id.fragment_converter);
         if (converterFragment != null) {
             converterFragment.onRatesRetrieved(rates);
-            availablePairs = converterFragment.getAvailablePairs();
         }
         RateListFragment rateListFragment = (RateListFragment) fm.findFragmentById(R.id.fragment_rate_list);
         if (rateListFragment != null) {

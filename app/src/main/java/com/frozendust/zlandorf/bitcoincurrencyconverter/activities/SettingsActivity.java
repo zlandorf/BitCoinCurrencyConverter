@@ -2,24 +2,35 @@ package com.frozendust.zlandorf.bitcoincurrencyconverter.activities;
 
 
 import android.annotation.TargetApi;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.PreferenceFragment;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
+import com.frozendust.zlandorf.bitcoincurrencyconverter.AnalyticsApplication;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.R;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.models.entities.Currency;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.models.entities.Pair;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.common.collect.Lists;
 
 import java.util.List;
 
-public class SettingsActivity extends AppCompatPreferenceActivity {
+public class SettingsActivity extends AppCompatPreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener{
+    private static final String SCREEN_NAME = "Settings_screen";
+    private Tracker tracker;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        tracker = ((AnalyticsApplication) getApplication()).getDefaultTracker();
+
         PreferenceFragment prefsFragment = new PrefsFragment();
         prefsFragment.setArguments(getIntent().getExtras());
         getFragmentManager()
@@ -27,6 +38,23 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             .replace(android.R.id.content, prefsFragment)
             .commit();
         setupActionBar();
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        tracker.send(new HitBuilders.EventBuilder()
+            .setCategory("Action")
+            .setAction("changed preferred pair")
+            .set("pair", sharedPreferences.getString(key, ""))
+            .build()
+        );
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        tracker.setScreenName(SCREEN_NAME);
+        tracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
 
     /**
