@@ -130,8 +130,6 @@ public class ConverterFragment extends Fragment {
         }
 
         updateConversion();
-
-        //TODO : select BTC / EUR pair if the user hasn't interacted yet
     }
 
     private void createFromItemsViews(View view) {
@@ -195,20 +193,11 @@ public class ConverterFragment extends Fragment {
      * Converts the user's input value by using the selected exchange rate
      */
     private void updateConversion() {
-        int fromItemPosition = mFromSpinner.getSelectedItemPosition();
-        int toItemPosition = mToSpinner.getSelectedItemPosition();
-
+        Currency selectedFrom = (Currency) mFromSpinner.getSelectedItem();
+        Currency selectedTo = (Currency) mToSpinner.getSelectedItem();
         double convertedValue = 0;
 
-        if (
-            fromItemPosition != Spinner.INVALID_POSITION
-            && toItemPosition != Spinner.INVALID_POSITION
-            && fromItemPosition < mFromSpinner.getCount()
-            && toItemPosition < mToSpinner.getCount()
-        ) {
-            Currency selectedFrom = (Currency) mFromSpinner.getItemAtPosition(fromItemPosition);
-            Currency selectedTo = (Currency) mToSpinner.getItemAtPosition(toItemPosition);
-
+        if (selectedFrom != null && selectedTo != null) {
             Rate selectedRate = mPairToRateMap.get(new Pair(selectedFrom, selectedTo).hashCode());
             if (selectedRate != null) {
                 String fromValueAsString = mFromTextInput.getText().toString();
@@ -239,12 +228,11 @@ public class ConverterFragment extends Fragment {
      * Update the "To" Spinner to only display currencies the selected currency can convert to
      */
     private void  updateToSpinner() {
-        int fromItemPosition = mFromSpinner.getSelectedItemPosition();
+        Currency selectedFrom = (Currency) mFromSpinner.getSelectedItem();
         Currency previouslySelectedTo = (Currency) mToSpinner.getSelectedItem();
 
         mToAdapter.clear();
-        if (fromItemPosition != Spinner.INVALID_POSITION && fromItemPosition < mFromSpinner.getCount()) {
-            Currency selectedFrom = (Currency) mFromSpinner.getItemAtPosition(fromItemPosition);
+        if (selectedFrom != null) {
             // fill the "to" spinner with possible rates
             for (Rate rate : mPairToRateMap.values()) {
                 if (rate.getPair().getFrom().equals(selectedFrom)) {
