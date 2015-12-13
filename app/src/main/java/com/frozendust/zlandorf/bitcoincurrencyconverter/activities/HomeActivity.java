@@ -1,10 +1,12 @@
 package com.frozendust.zlandorf.bitcoincurrencyconverter.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -18,20 +20,27 @@ import com.frozendust.zlandorf.bitcoincurrencyconverter.R;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.ConverterFragment;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.RateListFragment;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.RatesTaskFragment;
+import com.frozendust.zlandorf.bitcoincurrencyconverter.models.entities.Pair;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.models.entities.Rate;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.tasks.RetrieveTask;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity implements ConverterFragment.OnFragmentInteractionListener, RetrieveTask.RetrieveTaskListener, RateListFragment.RateListListener {
+    public static final String AVAILABLE_PAIRS_EXTRA = "available_pairs";
     private static final String RATES_TASK_FRAGMENT = "rates_task_fragment";
 
     private RatesTaskFragment mRatesTaskFragment;
+    private ArrayList<Pair> availablePairs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+
+        // Set default preferences values if they have never been set before
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -74,6 +83,10 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            intent.putParcelableArrayListExtra(AVAILABLE_PAIRS_EXTRA, availablePairs);
+            startActivity(intent);
+
             return true;
         }
 
@@ -84,6 +97,7 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
                 Toast.makeText(getApplicationContext(), R.string.refreshing, Toast.LENGTH_SHORT).show();
                 mRatesTaskFragment.execute();
             }
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -104,6 +118,7 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
         ConverterFragment converterFragment = (ConverterFragment) fm.findFragmentById(R.id.fragment_converter);
         if (converterFragment != null) {
             converterFragment.onRatesRetrieved(rates);
+            availablePairs = converterFragment.getAvailablePairs();
         }
         RateListFragment rateListFragment = (RateListFragment) fm.findFragmentById(R.id.fragment_rate_list);
         if (rateListFragment != null) {

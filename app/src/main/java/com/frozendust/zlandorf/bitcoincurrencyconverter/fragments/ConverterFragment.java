@@ -1,13 +1,16 @@
 package com.frozendust.zlandorf.bitcoincurrencyconverter.fragments;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -19,6 +22,7 @@ import com.frozendust.zlandorf.bitcoincurrencyconverter.R;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.models.entities.Currency;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.models.entities.Pair;
 import com.frozendust.zlandorf.bitcoincurrencyconverter.models.entities.Rate;
+import com.google.common.collect.Lists;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -39,6 +43,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ConverterFragment extends Fragment {
     private static final double BITCOIN_TO_MBTC_RATIO = 1000.;
     private static final Pair BTC_EUR_PAIR = new Pair(Currency.BTC, Currency.EUR);
+    private static final String HAS_USER_INTERACTED_SAVE_KEY = "hasUserInteracted";
 
     private OnFragmentInteractionListener mListener;
 
@@ -84,6 +89,14 @@ public class ConverterFragment extends Fragment {
         mDecimalFormatter = new DecimalFormat("#,##0.0####", new DecimalFormatSymbols(Locale.ENGLISH));
     }
 
+    public ArrayList<Pair> getAvailablePairs() {
+        ArrayList<Pair> pairs = Lists.newArrayList();
+        for (Rate rate : mPairToRateMap.values()) {
+            pairs.add(rate.getPair());
+        }
+        return pairs;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -110,23 +123,45 @@ public class ConverterFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(HAS_USER_INTERACTED_SAVE_KEY, hasUserInteracted);
+    }
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+//        hasUserInteracted = savedInstanceState.getBoolean(HAS_USER_INTERACTED_SAVE_KEY);
+    }
+
     public void onRatesRetrieved(List<Rate> rates) {
         if (rates == null || rates.isEmpty()) {
             return;
         }
-
         updateFromSpinner(getCompletedRates(rates));
 
-        // If the user hasn't interacted yet, initialise the spinners on the BTC/EUR pair when
+        // If the user hasn't interacted yet, initialise the spinners on the user's preferred pair when
         // the rates are retrieved
-        if (!hasUserInteracted && mPairToRateMap.containsKey(BTC_EUR_PAIR.hashCode())) {
-            selectSpinnerCurrency(mFromSpinner, Currency.BTC);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        Pair preferredPair = null;
+        if (preferences != null) {
+            preferredPair = Pair.valueOf(
+                preferences.getString(getString(R.string.pref_exchange_pair_key),BTC_EUR_PAIR.toString())
+            );
+        }
+        if (preferredPair == null) {
+            preferredPair = BTC_EUR_PAIR;
+        }
+
+        if (!hasUserInteracted && mPairToRateMap.containsKey(preferredPair.hashCode())) {
+            selectSpinnerCurrency(mFromSpinner, preferredPair.getFrom());
         }
 
         updateToSpinner();
 
-        if (!hasUserInteracted && mPairToRateMap.containsKey(BTC_EUR_PAIR.hashCode())) {
-            selectSpinnerCurrency(mToSpinner, Currency.EUR);
+        if (!hasUserInteracted && mPairToRateMap.containsKey(preferredPair.hashCode())) {
+            selectSpinnerCurrency(mToSpinner, preferredPair.getTo());
         }
 
         updateConversion();
@@ -138,6 +173,7 @@ public class ConverterFragment extends Fragment {
 
         mFromSpinner = (Spinner) view.findViewById(R.id.convertFromSpinner);
         mFromSpinner.setAdapter(mFromAdapter);
+        mFromSpinner.setOnTouchListener(new SpinnerTouchListener());
         mFromSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
@@ -145,7 +181,6 @@ public class ConverterFragment extends Fragment {
 
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                hasUserInteracted = true;
                 updateToSpinner();
                 updateConversion();
             }
@@ -176,11 +211,11 @@ public class ConverterFragment extends Fragment {
 
         mToSpinner = (Spinner) view.findViewById(R.id.convertToSpinner);
         mToSpinner.setAdapter(mToAdapter);
+        mToSpinner.setOnTouchListener(new SpinnerTouchListener());
         mToSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override public void onNothingSelected(AdapterView<?> parent) {}
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                hasUserInteracted = true;
                 updateConversion();
             }
         });
@@ -309,4 +344,11 @@ public class ConverterFragment extends Fragment {
         }
     }
 
+    class SpinnerTouchListener implements View.OnTouchListener {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            hasUserInteracted = true;
+            return false;
+        }
+    }
 }
