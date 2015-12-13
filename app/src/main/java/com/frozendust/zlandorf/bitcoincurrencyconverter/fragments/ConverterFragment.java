@@ -43,7 +43,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ConverterFragment extends Fragment {
     private static final double BITCOIN_TO_MBTC_RATIO = 1000.;
     private static final Pair BTC_EUR_PAIR = new Pair(Currency.BTC, Currency.EUR);
-    private static final String HAS_USER_INTERACTED_SAVE_KEY = "hasUserInteracted";
 
     private OnFragmentInteractionListener mListener;
 
@@ -121,18 +120,6 @@ public class ConverterFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putBoolean(HAS_USER_INTERACTED_SAVE_KEY, hasUserInteracted);
-    }
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-//        hasUserInteracted = savedInstanceState.getBoolean(HAS_USER_INTERACTED_SAVE_KEY);
     }
 
     public void onRatesRetrieved(List<Rate> rates) {
