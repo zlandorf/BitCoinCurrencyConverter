@@ -33,7 +33,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/progress_bar_container"
-        android:name="com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.ConverterFragment"
+        android:name="fr.zlandorf.currencyconverter.fragments.ConverterFragment"
         android:id="@+id/fragment_converter"
         tools:layout="@layout/fragment_converter" />
 
@@ -48,7 +48,7 @@
     <fragment
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:name="com.frozendust.zlandorf.bitcoincurrencyconverter.fragments.RateListFragment"
+        android:name="fr.zlandorf.currencyconverter.fragments.RateListFragment"
         android:id="@+id/fragment_rate_list"
         android:layout_below="@+id/separator"
         android:layout_centerHorizontal="true"
