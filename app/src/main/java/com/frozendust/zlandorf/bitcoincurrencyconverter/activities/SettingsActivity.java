@@ -21,7 +21,7 @@ import com.google.common.collect.Lists;
 
 import java.util.List;
 
-public class SettingsActivity extends AppCompatPreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener{
+public class SettingsActivity extends AppCompatPreferenceActivity {
     private static final String SCREEN_NAME = "Settings_screen";
     private Tracker tracker;
 
@@ -38,16 +38,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
             .replace(android.R.id.content, prefsFragment)
             .commit();
         setupActionBar();
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        tracker.send(new HitBuilders.EventBuilder()
-            .setCategory("Action")
-            .setAction("changed preferred pair")
-            .set("pair", sharedPreferences.getString(key, ""))
-            .build()
-        );
     }
 
     @Override
@@ -83,10 +73,14 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public static class PrefsFragment extends PreferenceFragment {
+    public static class PrefsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
+        private Tracker tracker;
+
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+            tracker = ((AnalyticsApplication) getActivity().getApplication()).getDefaultTracker();
+
             addPreferencesFromResource(R.xml.preferences);
 
             ListPreference preferredPairPreference = (ListPreference) findPreference(getString(R.string.pref_exchange_pair_key));
@@ -112,6 +106,34 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
                 preferredPairPreference.setEntries(entries);
                 preferredPairPreference.setEntryValues(entryValues);
             }
+        }
+
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+            ListPreference preferredPairPreference = (ListPreference) findPreference(getString(R.string.pref_exchange_pair_key));
+            if (preferredPairPreference != null) {
+                preferredPairPreference.setSummary("%s");
+            }
+            tracker.send(new HitBuilders.EventBuilder()
+                .setCategory("Action")
+                .setAction("changed preferred pair")
+                .set("pair", sharedPreferences.getString(key, ""))
+                .build()
+            );
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            PreferenceManager.getDefaultSharedPreferences(getActivity()).registerOnSharedPreferenceChangeListener(this);
+            tracker.setScreenName(SCREEN_NAME);
+            tracker.send(new HitBuilders.ScreenViewBuilder().build());
+        }
+
+        @Override
+        public void onPause() {
+            PreferenceManager.getDefaultSharedPreferences(getActivity()).unregisterOnSharedPreferenceChangeListener(this);
+            super.onPause();
         }
     }
 
