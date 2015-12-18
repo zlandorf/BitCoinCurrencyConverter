@@ -8,6 +8,7 @@ import android.util.Log;
 
 import fr.zlandorf.currencyconverter.services.HttpService;
 import fr.zlandorf.currencyconverter.tasks.RetrieveTask;
+import fr.zlandorf.currencyconverter.tasks.rates.BitfinexRetrieveTask;
 import fr.zlandorf.currencyconverter.tasks.rates.KrakenRetrieveTask;
 import fr.zlandorf.currencyconverter.tasks.rates.YahooRetrieveTask;
 
@@ -65,7 +66,8 @@ public class RatesTaskFragment extends Fragment {
             // clear tasks and run anew
             mTasks.clear();
 
-            mTasks.add((RetrieveTask) new KrakenRetrieveTask(mListener, httpService).execute());
+//            mTasks.add((RetrieveTask) new KrakenRetrieveTask(mListener, httpService).execute());
+            mTasks.add((RetrieveTask) new BitfinexRetrieveTask(mListener, httpService).execute());
             mTasks.add((RetrieveTask) new YahooRetrieveTask(mListener, httpService).execute());
         } else {
             Log.e("TEST", "TASKS ARE NULL");

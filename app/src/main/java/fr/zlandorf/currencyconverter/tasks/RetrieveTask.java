@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import fr.zlandorf.currencyconverter.models.entities.Rate;
+import fr.zlandorf.currencyconverter.services.HttpService;
 
 import java.util.List;
 
@@ -14,14 +15,16 @@ public abstract class RetrieveTask extends AsyncTask<Void, Void, List<Rate>> {
         void onTaskFailed(String provider);
     }
 
-    protected RetrieveTaskListener mListener;
+    protected RetrieveTaskListener listener;
+    protected HttpService httpService;
 
-    protected RetrieveTask(RetrieveTaskListener listener) {
-        this.mListener = listener;
+    protected RetrieveTask(RetrieveTaskListener listener, HttpService httpService) {
+        this.listener = listener;
+        this.httpService = httpService;
     }
 
     public void setListener(RetrieveTaskListener listener) {
-        this.mListener = listener;
+        this.listener = listener;
     }
 
     /**
@@ -39,8 +42,8 @@ public abstract class RetrieveTask extends AsyncTask<Void, Void, List<Rate>> {
     @Override
     protected void onPostExecute(List<Rate> rates) {
         super.onPostExecute(rates);
-        if (rates != null && mListener != null) {
-            mListener.onTaskFinished(rates);
+        if (rates != null && listener != null) {
+            listener.onTaskFinished(rates);
         }
     }
 
@@ -49,7 +52,7 @@ public abstract class RetrieveTask extends AsyncTask<Void, Void, List<Rate>> {
         try {
             return retrieveRates();
         } catch (Exception e) {
-            mListener.onTaskFailed(getProviderName());
+            listener.onTaskFailed(getProviderName());
             Log.e("RETRIEVE_TASK", "Exception retrieving rates : [" + e.getMessage() + "] task : ["+getClass().getSimpleName()+"]");
             e.printStackTrace();
         }

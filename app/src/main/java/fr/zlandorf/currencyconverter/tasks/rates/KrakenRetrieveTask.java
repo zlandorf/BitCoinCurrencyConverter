@@ -32,11 +32,8 @@ public class KrakenRetrieveTask extends RetrieveTask {
 
     protected static final String KRAKEN_URL = "https://api.kraken.com/0/public/Ticker?pair=" + Joiner.on(",").join(PAIRS_TO_RETRIEVE);
 
-    private HttpService httpService;
-
     public KrakenRetrieveTask(RetrieveTaskListener listener, HttpService httpService) {
-        super(listener);
-        this.httpService = httpService;
+        super(listener, httpService);
     }
 
     @Override

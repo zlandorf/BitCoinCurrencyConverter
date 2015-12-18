@@ -36,11 +36,8 @@ public class YahooRetrieveTask extends RetrieveTask {
     //EUR USD , EUR CNY , EUR GBP , USD CNY , USD GBP , GBP CNY
     protected static String YAHOO_URL = "http://download.finance.yahoo.com/d/quotes.csv?s=" + Joiner.on(",").join(PAIRS_TO_RETRIEVE) + "&f=sl1&e=.csv";
 
-    private HttpService httpService;
-
     public YahooRetrieveTask(RetrieveTaskListener listener, HttpService httpService) {
-        super(listener);
-        this.httpService = httpService;
+        super(listener, httpService);
     }
 
     @Override
