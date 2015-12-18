@@ -118,6 +118,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             tracker.send(new HitBuilders.EventBuilder()
                 .setCategory("Action")
                 .setAction("changed preferred pair")
+                .setLabel(sharedPreferences.getString(key, ""))
                 .set("pair", sharedPreferences.getString(key, ""))
                 .build()
             );
@@ -127,8 +128,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         public void onResume() {
             super.onResume();
             PreferenceManager.getDefaultSharedPreferences(getActivity()).registerOnSharedPreferenceChangeListener(this);
-            tracker.setScreenName(SCREEN_NAME);
-            tracker.send(new HitBuilders.ScreenViewBuilder().build());
         }
 
         @Override
