@@ -52,7 +52,9 @@ public abstract class RetrieveTask extends AsyncTask<Void, Void, List<Rate>> {
         try {
             return retrieveRates();
         } catch (Exception e) {
-            listener.onTaskFailed(getProviderName());
+            if (listener != null) {
+                listener.onTaskFailed(getProviderName());
+            }
             Log.e("RETRIEVE_TASK", "Exception retrieving rates : [" + e.getMessage() + "] task : ["+getClass().getSimpleName()+"]");
             e.printStackTrace();
         }
