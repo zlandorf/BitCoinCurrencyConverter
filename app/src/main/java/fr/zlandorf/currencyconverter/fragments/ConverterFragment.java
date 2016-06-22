@@ -296,6 +296,7 @@ public class ConverterFragment extends Fragment {
                 return;
             }
         }
+        spinner.setSelection(Spinner.INVALID_POSITION);
     }
 
     /**
