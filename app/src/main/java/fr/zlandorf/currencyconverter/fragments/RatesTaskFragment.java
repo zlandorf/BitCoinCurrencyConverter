@@ -1,23 +1,17 @@
 package fr.zlandorf.currencyconverter.fragments;
 
-import android.app.Activity;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 
+import fr.zlandorf.currencyconverter.models.entities.Exchange;
 import fr.zlandorf.currencyconverter.services.HttpService;
 import fr.zlandorf.currencyconverter.tasks.RetrieveTask;
-import fr.zlandorf.currencyconverter.tasks.rates.BitfinexRetrieveTask;
-import fr.zlandorf.currencyconverter.tasks.rates.KrakenRetrieveTask;
-import fr.zlandorf.currencyconverter.tasks.rates.YahooRetrieveTask;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class RatesTaskFragment extends Fragment {
     protected RetrieveTask.RetrieveTaskListener mListener;
-    protected List<RetrieveTask> mTasks;
+    protected RetrieveTask mTask;
     protected HttpService httpService;
 
     public static RatesTaskFragment newInstance() {
@@ -28,19 +22,17 @@ public class RatesTaskFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
         try {
-            mListener = (RetrieveTask.RetrieveTaskListener) activity;
+            mListener = (RetrieveTask.RetrieveTaskListener) context;
 
-            if (mTasks != null) {
-                for (RetrieveTask task : mTasks) {
-                    task.setListener(mListener);
-                }
+            if (mTask != null) {
+                mTask.setListener(mListener);
             }
 
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
+            throw new ClassCastException(context.toString()
                     + " must implement RetrieveTask.RetrieveTaskListener");
         }
     }
@@ -50,28 +42,20 @@ public class RatesTaskFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
 
-        mTasks = new ArrayList<>();
+        mTask = null;
         httpService = new HttpService();
-        execute();
     }
 
-    public void execute() {
-        if (mTasks != null) {
+    public void execute(Exchange exchange) throws Exception {
+        if (mTask != null) {
             // cancel previously running tasks
-            for (RetrieveTask task : mTasks) {
-                if (task.getStatus() != AsyncTask.Status.FINISHED) {
-                    task.cancel(true);
-                }
+            if (mTask.getStatus() != AsyncTask.Status.FINISHED) {
+                mTask.cancel(true);
             }
-            // clear tasks and run anew
-            mTasks.clear();
-
-//            mTasks.add((RetrieveTask) new KrakenRetrieveTask(mListener, httpService).execute());
-            mTasks.add((RetrieveTask) new BitfinexRetrieveTask(mListener, httpService).execute());
-            mTasks.add((RetrieveTask) new YahooRetrieveTask(mListener, httpService).execute());
-        } else {
-            Log.e("TEST", "TASKS ARE NULL");
+            mTask = null;
         }
+        mTask = exchange.getRetrieveTaskClass().getConstructor(RetrieveTask.RetrieveTaskListener.class, HttpService.class).newInstance(mListener, httpService);
+        mTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     /**
@@ -82,9 +66,7 @@ public class RatesTaskFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
-
-        for (RetrieveTask task : mTasks) {
-            task.setListener(null);
-        }
+        mTask.setListener(null);
     }
+
 }

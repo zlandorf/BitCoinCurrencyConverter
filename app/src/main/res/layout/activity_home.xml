@@ -6,9 +6,16 @@
     android:layout_marginTop="@dimen/activity_vertical_margin"
     android:layout_marginBottom="@dimen/activity_vertical_margin" tools:context=".HomeActivity">
 
+    <Spinner
+        android:id="@+id/exchange_selector"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+    />
+
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
+        android:layout_below="@+id/exchange_selector"
         android:gravity="center"
         android:orientation="vertical"
         android:id="@+id/progress_bar_container"
@@ -29,29 +36,35 @@
             android:text="@string/no_internet" />
     </LinearLayout>
 
-    <fragment
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/progress_bar_container"
-        android:name="fr.zlandorf.currencyconverter.fragments.ConverterFragment"
-        android:id="@+id/fragment_converter"
-        tools:layout="@layout/fragment_converter" />
+        android:layout_below="@+id/exchange_selector"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:id="@+id/fragments_container"
+        android:visibility="gone">
 
-    <View
-        android:id="@+id/separator"
-        android:layout_below="@+id/fragment_converter"
-        android:layout_width="match_parent"
-        android:layout_height="0.5dp"
-        android:background="@color/grey">
-    </View>
+        <fragment
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:name="fr.zlandorf.currencyconverter.fragments.ConverterFragment"
+            android:id="@+id/fragment_converter"
+            tools:layout="@layout/fragment_converter" />
 
-    <fragment
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:name="fr.zlandorf.currencyconverter.fragments.RateListFragment"
-        android:id="@+id/fragment_rate_list"
-        android:layout_below="@+id/separator"
-        android:layout_centerHorizontal="true"
-        tools:layout="@layout/fragment_rate_list" />
+        <View
+            android:id="@+id/separator"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/grey">
+        </View>
+
+        <fragment
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:name="fr.zlandorf.currencyconverter.fragments.RateListFragment"
+            android:id="@+id/fragment_rate_list"
+            tools:layout="@layout/fragment_rate_list" />
+    </LinearLayout>
 
 </RelativeLayout>

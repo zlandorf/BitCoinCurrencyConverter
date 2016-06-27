@@ -1,6 +1,6 @@
 package fr.zlandorf.currencyconverter.fragments;
 
-import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -10,12 +10,12 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import fr.zlandorf.currencyconverter.R;
 import fr.zlandorf.currencyconverter.adapters.RateAdapter;
 import fr.zlandorf.currencyconverter.models.entities.Rate;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A fragment representing a list of Items.
@@ -46,20 +46,8 @@ public class RateListFragment extends Fragment implements AbsListView.OnItemClic
 
     public void onRatesRetrieved(List<Rate> rates) {
         Log.d("RATE_LIST_FRAGMENT", String.format("Rates received : %s\n", rates.size()));
-        mainLoop: for (Rate rate : rates) {
-            for (int i = 0; i < mRates.size(); i++) {
-                Rate existingRate = mRates.get(i);
-                if (mRates.get(i).getPair().equals(rate.getPair())) {
-                    Log.d("RATE_LIST_FRAGMENT", String.format("updating existing rate [%s] with new values [%s]\n", existingRate, rate));
-                    // Rate already listed, update it and go to next rate
-                    mRates.set(i, rate);
-                    continue mainLoop;
-                }
-            }
-            // rate not listed yet
-            mRates.add(rate);
-            Log.d("RATE_LIST_FRAGMENT", String.format("added rate: %s\n", rate));
-        }
+        mRates.clear();
+        mRates.addAll(rates);
         mAdapter.notifyDataSetChanged();
     }
 
@@ -87,12 +75,12 @@ public class RateListFragment extends Fragment implements AbsListView.OnItemClic
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
         try {
-            mListener = (RateListListener) activity;
+            mListener = (RateListListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
+            throw new ClassCastException(context.toString()
                     + " must implement RateListListener");
         }
     }

@@ -1,6 +1,6 @@
 package fr.zlandorf.currencyconverter.fragments;
 
-import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,7 +10,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -18,12 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import fr.zlandorf.currencyconverter.R;
-import fr.zlandorf.currencyconverter.models.entities.Currency;
-import fr.zlandorf.currencyconverter.models.entities.Pair;
-import fr.zlandorf.currencyconverter.models.entities.Rate;
 import com.google.common.collect.Lists;
-import fr.zlandorf.currencyconverter.tasks.RetrieveTask;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -32,6 +26,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import fr.zlandorf.currencyconverter.R;
+import fr.zlandorf.currencyconverter.models.entities.Currency;
+import fr.zlandorf.currencyconverter.models.entities.Pair;
+import fr.zlandorf.currencyconverter.models.entities.Rate;
+import fr.zlandorf.currencyconverter.tasks.RetrieveTask;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -143,12 +143,12 @@ public class ConverterFragment extends Fragment {
     }
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
+    public void onAttach(Context context) {
+        super.onAttach(context);
         try {
-            mListener = (OnFragmentInteractionListener) activity;
+            mListener = (OnFragmentInteractionListener) context;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString()
+            throw new ClassCastException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
     }
@@ -163,10 +163,26 @@ public class ConverterFragment extends Fragment {
         if (rates == null || rates.isEmpty()) {
             return;
         }
-        updateFromSpinner(getCompletedRates(rates));
+        List<Rate> completedRates = getCompletedRates(rates);
+        setFromSpinner(completedRates);
+        setPairToRateMap(completedRates);
 
-        // If the user hasn't interacted yet, initialise the spinners on the user's preferred pair when
-        // the rates are retrieved
+        Pair preferredPair = getPreferredPair();
+
+        if (mPairToRateMap.containsKey(preferredPair.hashCode())) {
+            selectSpinnerCurrency(mFromSpinner, preferredPair.getFrom());
+        }
+
+        updateToSpinner();
+
+        if (mPairToRateMap.containsKey(preferredPair.hashCode())) {
+            selectSpinnerCurrency(mToSpinner, preferredPair.getTo());
+        }
+
+        updateConversion();
+    }
+
+    private Pair getPreferredPair() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         Pair preferredPair = null;
         if (preferences != null) {
@@ -174,21 +190,7 @@ public class ConverterFragment extends Fragment {
                 preferences.getString(getString(R.string.pref_exchange_pair_key),BTC_EUR_PAIR.toString())
             );
         }
-        if (preferredPair == null) {
-            preferredPair = BTC_EUR_PAIR;
-        }
-
-        if (!hasUserInteracted && mPairToRateMap.containsKey(preferredPair.hashCode())) {
-            selectSpinnerCurrency(mFromSpinner, preferredPair.getFrom());
-        }
-
-        updateToSpinner();
-
-        if (!hasUserInteracted && mPairToRateMap.containsKey(preferredPair.hashCode())) {
-            selectSpinnerCurrency(mToSpinner, preferredPair.getTo());
-        }
-
-        updateConversion();
+        return preferredPair != null ? preferredPair : BTC_EUR_PAIR;
     }
 
     private void createFromItemsViews(View view) {
@@ -197,7 +199,6 @@ public class ConverterFragment extends Fragment {
 
         mFromSpinner = (Spinner) view.findViewById(R.id.convertFromSpinner);
         mFromSpinner.setAdapter(mFromAdapter);
-        mFromSpinner.setOnTouchListener(new SpinnerTouchListener());
 
         mFromTextInput = (TextView) view.findViewById(R.id.convertFromText);
         mFromTextInput.setText("1.0");
@@ -224,7 +225,6 @@ public class ConverterFragment extends Fragment {
 
         mToSpinner = (Spinner) view.findViewById(R.id.convertToSpinner);
         mToSpinner.setAdapter(mToAdapter);
-        mToSpinner.setOnTouchListener(new SpinnerTouchListener());
 
         mToText = (TextView) view.findViewById(R.id.convertToText);
         mToText.setText("0.0");
@@ -254,15 +254,22 @@ public class ConverterFragment extends Fragment {
         mToText.setText(mDecimalFormatter.format(convertedValue));
     }
 
-    private void updateFromSpinner(List<Rate> rates) {
-        for (Rate rate: rates) {
-            if (!mFromCurrencies.contains(rate.getPair().getFrom())) {
-                mFromCurrencies.add(rate.getPair().getFrom());
+    private void setFromSpinner(List<Rate> rates) {
+        mFromCurrencies.clear();
+        for (Rate rate : rates) {
+            Currency from = rate.getPair().getFrom();
+            if (!mFromCurrencies.contains(from)) {
+                mFromCurrencies.add(from);
             }
-            // This will update "old" rates in case of a refresh
-            mPairToRateMap.put(rate.getPair().hashCode(), rate);
         }
         mFromAdapter.notifyDataSetChanged();
+    }
+
+    private void setPairToRateMap(List<Rate> rates) {
+        mPairToRateMap.clear();
+        for (Rate rate : rates) {
+            mPairToRateMap.put(rate.getPair().hashCode(), rate);
+        }
     }
 
     /**
@@ -296,7 +303,11 @@ public class ConverterFragment extends Fragment {
                 return;
             }
         }
-        spinner.setSelection(Spinner.INVALID_POSITION);
+        if (spinner.getCount() > 0) {
+            spinner.setSelection(0);
+        } else {
+            spinner.setSelection(Spinner.INVALID_POSITION);
+        }
     }
 
     /**
@@ -351,11 +362,4 @@ public class ConverterFragment extends Fragment {
         }
     }
 
-    class SpinnerTouchListener implements View.OnTouchListener {
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            hasUserInteracted = true;
-            return false;
-        }
-    }
 }

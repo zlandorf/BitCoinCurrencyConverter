@@ -14,6 +14,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import fr.zlandorf.currencyconverter.AnalyticsApplication;
@@ -21,8 +24,10 @@ import fr.zlandorf.currencyconverter.R;
 import fr.zlandorf.currencyconverter.fragments.ConverterFragment;
 import fr.zlandorf.currencyconverter.fragments.RateListFragment;
 import fr.zlandorf.currencyconverter.fragments.RatesTaskFragment;
+import fr.zlandorf.currencyconverter.models.entities.Exchange;
 import fr.zlandorf.currencyconverter.models.entities.Pair;
 import fr.zlandorf.currencyconverter.models.entities.Rate;
+import fr.zlandorf.currencyconverter.repositories.ExchangeRepository;
 import fr.zlandorf.currencyconverter.tasks.RetrieveTask;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
@@ -35,6 +40,7 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
     private static final String RATES_TASK_FRAGMENT = "rates_task_fragment";
     private static final String SCREEN_NAME = "Home_screen";
 
+    private Spinner exchangeSelector;
     private RatesTaskFragment mRatesTaskFragment;
     private Tracker tracker;
 
@@ -48,6 +54,13 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
         // Set default preferences values if they have never been set before
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 
+        ExchangeRepository exchangeRepository = new ExchangeRepository();
+        exchangeSelector = (Spinner) findViewById(R.id.exchange_selector);
+        ArrayAdapter<Exchange> exchangeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, exchangeRepository.getExchanges());
+        exchangeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        exchangeSelector.setAdapter(exchangeAdapter);
+        exchangeSelector.setOnItemSelectedListener(new ExchangesItemSelector());
+
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setLogo(R.drawable.ic_action_bar);
@@ -58,19 +71,34 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
         FragmentManager fm = getSupportFragmentManager();
         mRatesTaskFragment = (RatesTaskFragment) fm.findFragmentByTag(RATES_TASK_FRAGMENT);
         if (mRatesTaskFragment == null) {
-            // Show the progress bar while retrieving the rates for the first time
-            findViewById(R.id.progress_bar_container).setVisibility(View.VISIBLE);
-
-            // If there is no network available, show an error message
-            if (!isNetworkAvailable()) {
-                findViewById(R.id.spinner_progress_bar).setVisibility(View.GONE);
-                findViewById(R.id.no_internet_text).setVisibility(View.VISIBLE);
-            }
-
             // Create the task fragment that will retrieve rates
             mRatesTaskFragment = RatesTaskFragment.newInstance();
             fm.beginTransaction().add(mRatesTaskFragment, RATES_TASK_FRAGMENT).commit();
         }
+    }
+
+    public void retrieveRates() {
+        // Show the progress bar while retrieving the rates for the first time
+        findViewById(R.id.progress_bar_container).setVisibility(View.VISIBLE);
+        findViewById(R.id.fragments_container).setVisibility(View.GONE);
+
+        // If there is no network available, show an error message
+        if (!isNetworkAvailable()) {
+            findViewById(R.id.spinner_progress_bar).setVisibility(View.GONE);
+            findViewById(R.id.no_internet_text).setVisibility(View.VISIBLE);
+        } else {
+
+            Exchange exchange = (Exchange) exchangeSelector.getSelectedItem();
+            if (exchange != null) {
+                try {
+                    mRatesTaskFragment.execute(exchange);
+                } catch (Exception e) {
+                    Log.e("RATE_RETRIEVAL", "Failed to retrieve tasks for " + exchange.getName() + " : " + e.getMessage());
+                    onTaskFailed(exchange.getName());
+                }
+            }
+        }
+
     }
 
     @Override
@@ -109,7 +137,7 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
                 Toast.makeText(getApplicationContext(), R.string.no_internet, Toast.LENGTH_LONG).show();
             } else if (mRatesTaskFragment != null) {
                 Toast.makeText(getApplicationContext(), R.string.refreshing, Toast.LENGTH_SHORT).show();
-                mRatesTaskFragment.execute();
+                retrieveRates();
             }
             return true;
         }
@@ -127,6 +155,7 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
         Log.d("RATE_RETRIEVAL", String.format("Rates received : %s\n", rates.size()));
         // Hide the progress bar
         findViewById(R.id.progress_bar_container).setVisibility(View.GONE);
+        findViewById(R.id.fragments_container).setVisibility(View.VISIBLE);
 
         FragmentManager fm = getSupportFragmentManager();
         ConverterFragment converterFragment = (ConverterFragment) fm.findFragmentById(R.id.fragment_converter);
@@ -160,5 +189,17 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    private class ExchangesItemSelector implements AdapterView.OnItemSelectedListener {
+
+        @Override
+        public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+            retrieveRates();
+        }
+
+        @Override
+        public void onNothingSelected(AdapterView<?> adapterView) {
+        }
     }
 }
