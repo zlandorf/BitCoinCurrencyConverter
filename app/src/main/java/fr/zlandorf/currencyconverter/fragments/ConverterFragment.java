@@ -166,6 +166,7 @@ public class ConverterFragment extends Fragment {
         if (rates == null || rates.isEmpty()) {
             return;
         }
+        boolean newExchangeSelected = currentExchange == null || !currentExchange.getName().equals(exchange.getName());
         currentExchange = exchange;
         List<Rate> completedRates = getCompletedRates(rates);
         setFromSpinner(completedRates);
@@ -173,13 +174,13 @@ public class ConverterFragment extends Fragment {
 
         Pair preferredPair = getPreferredPair(exchange);
 
-        if (preferredPair != null && mPairToRateMap.containsKey(preferredPair.hashCode())) {
+        if (newExchangeSelected && preferredPair != null && mPairToRateMap.containsKey(preferredPair.hashCode())) {
             selectSpinnerCurrency(mFromSpinner, preferredPair.getFrom());
         }
 
         updateToSpinner();
 
-        if (preferredPair != null && mPairToRateMap.containsKey(preferredPair.hashCode())) {
+        if (newExchangeSelected && preferredPair != null && mPairToRateMap.containsKey(preferredPair.hashCode())) {
             selectSpinnerCurrency(mToSpinner, preferredPair.getTo());
         }
 
