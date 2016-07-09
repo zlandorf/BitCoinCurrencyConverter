@@ -1,5 +1,9 @@
 package fr.zlandorf.currencyconverter.tasks.rates;
 
+import com.google.common.collect.Lists;
+
+import java.util.List;
+
 import fr.zlandorf.currencyconverter.models.entities.Currency;
 import fr.zlandorf.currencyconverter.models.entities.Pair;
 
@@ -35,5 +39,15 @@ public enum KrakenPair {
         }
 
         return null;
+    }
+
+    public static List<Pair> getPairs() {
+        List<Pair> pairs = Lists.newArrayList();
+
+        for (KrakenPair krakenPair : KrakenPair.values())  {
+            pairs.add(krakenPair.getPair());
+        }
+
+        return pairs;
     }
 }

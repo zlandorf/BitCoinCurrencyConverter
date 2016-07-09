@@ -1,5 +1,9 @@
 package fr.zlandorf.currencyconverter.tasks.rates;
 
+import com.google.common.collect.Lists;
+
+import java.util.List;
+
 import fr.zlandorf.currencyconverter.models.entities.Currency;
 import fr.zlandorf.currencyconverter.models.entities.Pair;
 
@@ -32,5 +36,15 @@ public enum BitfinexPair {
         }
 
         return null;
+    }
+
+    public static List<Pair> getPairs() {
+        List<Pair> pairs = Lists.newArrayList();
+
+        for (BitfinexPair bitfinexPair : BitfinexPair.values())  {
+            pairs.add(bitfinexPair.getPair());
+        }
+
+        return pairs;
     }
 }
