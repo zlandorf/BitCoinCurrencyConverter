@@ -6,15 +6,20 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
+import android.util.Log;
 import android.view.MenuItem;
 
 import fr.zlandorf.currencyconverter.AnalyticsApplication;
 import fr.zlandorf.currencyconverter.R;
 import fr.zlandorf.currencyconverter.models.entities.Currency;
+import fr.zlandorf.currencyconverter.models.entities.Exchange;
 import fr.zlandorf.currencyconverter.models.entities.Pair;
+import fr.zlandorf.currencyconverter.repositories.ExchangeRepository;
+
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.google.common.collect.Lists;
@@ -83,43 +88,81 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
             addPreferencesFromResource(R.xml.preferences);
 
-            ListPreference preferredPairPreference = (ListPreference) findPreference(getString(R.string.pref_exchange_pair_key));
-
-            if (preferredPairPreference != null) {
-                List<Pair> pairs = getArguments().getParcelableArrayList(HomeActivity.AVAILABLE_PAIRS_EXTRA);
-                if (pairs == null) {
-                    pairs = Lists.newArrayList();
-                }
-                if (pairs.isEmpty()) {
-                    // By default, the preferred pair is BTC/EUR
-                    pairs.add(new Pair(Currency.BTC, Currency.EUR));
-                }
-
-                CharSequence[] entries = new String[pairs.size()];
-                CharSequence[] entryValues = new String[pairs.size()];
+            List<Exchange> exchanges = new ExchangeRepository().getExchanges();
+            ListPreference preferredExchangePreference = (ListPreference) findPreference(getString(R.string.pref_exchange_key));
+            if (preferredExchangePreference != null) {
+                CharSequence[] entries = new String[exchanges.size()];
+                CharSequence[] entryValues = new String[exchanges.size()];
                 int i = 0;
-                for (Pair pair : pairs) {
-                    entries[i] = pair.toString();
-                    entryValues[i] = pair.toString();
+                for (Exchange exchange : exchanges) {
+                    entries[i] = exchange.getName();
+                    entryValues[i] = exchange.getName();
                     i++;
                 }
-                preferredPairPreference.setEntries(entries);
-                preferredPairPreference.setEntryValues(entryValues);
+                preferredExchangePreference.setEntries(entries);
+                preferredExchangePreference.setEntryValues(entryValues);
             }
+
+            PreferenceCategory pairsByExchangeCategory = (PreferenceCategory) findPreference(getString(R.string.pref_category_pairs_key));
+            if (pairsByExchangeCategory != null) {
+                for (Exchange exchange : exchanges) {
+                    ListPreference preferredPairPreference = new ListPreference(getActivity());
+                    String prefKey = String.format(getString(R.string.pref_pair_key_template), exchange.getName());
+
+                    preferredPairPreference.setKey(prefKey);
+                    preferredPairPreference.setTitle(exchange.getName());
+                    preferredPairPreference.setSummary("%s");
+
+                    initPairListPreference(exchange, preferredPairPreference);
+
+                    pairsByExchangeCategory.addPreference(preferredPairPreference);
+                }
+            }
+        }
+
+        private void initPairListPreference(Exchange exchange, ListPreference listPreference) {
+            List<Pair> pairs = Lists.newArrayList();
+
+            for (Pair pair : exchange.getPairs()) {
+                pairs.add(pair);
+                pairs.add(pair.invert());
+
+                if (pair.getFrom().equals(Currency.BTC)) {
+                    pairs.add(new Pair(Currency.mBTC, pair.getTo()));
+                }
+                if (pair.getTo().equals(Currency.BTC)) {
+                    pairs.add(new Pair(pair.getFrom(), Currency.mBTC));
+                }
+            }
+
+            CharSequence[] entries = new String[pairs.size()];
+            CharSequence[] entryValues = new String[pairs.size()];
+            int i = 0;
+            for (Pair pair : pairs) {
+                entries[i] = pair.toString();
+                entryValues[i] = pair.toString();
+                i++;
+            }
+            listPreference.setEntries(entries);
+            listPreference.setEntryValues(entryValues);
         }
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-            ListPreference preferredPairPreference = (ListPreference) findPreference(getString(R.string.pref_exchange_pair_key));
+            ListPreference preferredPairPreference = (ListPreference) findPreference(key);
             if (preferredPairPreference != null) {
                 preferredPairPreference.setSummary("dummy"); // on some devices the summary won't update without this
                 preferredPairPreference.setSummary("%s");
             }
+            String value = sharedPreferences.getString(key, "");
+            Log.d("PREFERENCES", String.format("Changing preferences for %s : %s\n", key, value));
+
             tracker.send(new HitBuilders.EventBuilder()
                 .setCategory("Action")
-                .setAction("changed preferred pair")
-                .setLabel(sharedPreferences.getString(key, ""))
-                .set("pair", sharedPreferences.getString(key, ""))
+                .setAction("changed preference")
+                .setLabel(key)
+                .set("key", key)
+                .set("value", value)
                 .build()
             );
         }

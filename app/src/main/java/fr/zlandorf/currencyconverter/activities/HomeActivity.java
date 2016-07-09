@@ -2,6 +2,7 @@ package fr.zlandorf.currencyconverter.activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -61,6 +62,7 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
         exchangeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         exchangeSelector.setAdapter(exchangeAdapter);
         exchangeSelector.setOnItemSelectedListener(new ExchangesItemSelector());
+        selectPreferredExchange();
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -100,6 +102,27 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
             }
         }
 
+    }
+
+    private void selectPreferredExchange() {
+        String preferredExchange = getPreferredExchangeName();
+        if (preferredExchange != null) {
+            for (int i = 0; i < exchangeSelector.getCount(); i++) {
+                Exchange exchange = (Exchange) exchangeSelector.getItemAtPosition(i);
+                if (exchange.getName().equals(preferredExchange)) {
+                    exchangeSelector.setSelection(i, false);
+                    break;
+                }
+            }
+        }
+    }
+
+    private String getPreferredExchangeName() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if (preferences != null) {
+            return preferences.getString(getString(R.string.pref_exchange_key), null);
+        }
+        return null;
     }
 
     @Override
@@ -161,7 +184,7 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
         FragmentManager fm = getSupportFragmentManager();
         ConverterFragment converterFragment = (ConverterFragment) fm.findFragmentById(R.id.fragment_converter);
         if (converterFragment != null) {
-            converterFragment.onRatesRetrieved(rates);
+            converterFragment.onRatesRetrieved(exchange, rates);
         }
         RateListFragment rateListFragment = (RateListFragment) fm.findFragmentById(R.id.fragment_rate_list);
         if (rateListFragment != null) {

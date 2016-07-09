@@ -11,8 +11,19 @@
     <string name="title_activity_settings">Settings</string>
 
     <!-- Strings related to Settings -->
-    <string name="pref_exchange_pair_title">Preferred exchange pair</string>
-    <string name="pref_exchange_pair_key">pref_exchange_pair</string>
-    <string name="pref_exchange_pair_default_value">BTC/EUR</string>
+
+    <!-- Preferred exchange -->
+    <string name="pref_category_exchanges_title">Preferred exchange</string>
+    <string name="pref_category_exchanges_key">pref_group_exchanges</string>
+
+    <string name="pref_exchange_title">Exchange</string>
+    <string name="pref_exchange_key">pref_exchange</string>
+    <string name="pref_exchange_default_value">Bitfinex</string>
+
+    <!-- Preferred pair by exchange -->
+    <string name="pref_category_pairs_title">Preferred pairs by exchange</string>
+    <string name="pref_category_pairs_key">pref_category_pairs</string>
+
+    <string name="pref_pair_key_template">pref_%s_pair_key</string>
 
 </resources>

@@ -29,6 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import fr.zlandorf.currencyconverter.R;
 import fr.zlandorf.currencyconverter.models.entities.Currency;
+import fr.zlandorf.currencyconverter.models.entities.Exchange;
 import fr.zlandorf.currencyconverter.models.entities.Pair;
 import fr.zlandorf.currencyconverter.models.entities.Rate;
 import fr.zlandorf.currencyconverter.tasks.RetrieveTask;
@@ -64,6 +65,8 @@ public class ConverterFragment extends Fragment {
     private DecimalFormat mDecimalFormatter;
 
     private boolean hasUserInteracted = false;
+
+    private Exchange currentExchange = null;
 
     /**
      * Use this factory method to create a new instance of
@@ -159,38 +162,41 @@ public class ConverterFragment extends Fragment {
         mListener = null;
     }
 
-    public void onRatesRetrieved(List<Rate> rates) {
+    public void onRatesRetrieved(Exchange exchange, List<Rate> rates) {
         if (rates == null || rates.isEmpty()) {
             return;
         }
+        currentExchange = exchange;
         List<Rate> completedRates = getCompletedRates(rates);
         setFromSpinner(completedRates);
         setPairToRateMap(completedRates);
 
-        Pair preferredPair = getPreferredPair();
+        Pair preferredPair = getPreferredPair(exchange);
 
-        if (mPairToRateMap.containsKey(preferredPair.hashCode())) {
+        if (preferredPair != null && mPairToRateMap.containsKey(preferredPair.hashCode())) {
             selectSpinnerCurrency(mFromSpinner, preferredPair.getFrom());
         }
 
         updateToSpinner();
 
-        if (mPairToRateMap.containsKey(preferredPair.hashCode())) {
+        if (preferredPair != null && mPairToRateMap.containsKey(preferredPair.hashCode())) {
             selectSpinnerCurrency(mToSpinner, preferredPair.getTo());
         }
 
         updateConversion();
     }
 
-    private Pair getPreferredPair() {
+    private Pair getPreferredPair(Exchange exchange) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        Pair preferredPair = null;
+        String prefKey = String.format(getString(R.string.pref_pair_key_template), exchange.getName());
+        String prefValue = null;
         if (preferences != null) {
-            preferredPair = Pair.valueOf(
-                preferences.getString(getString(R.string.pref_exchange_pair_key),BTC_EUR_PAIR.toString())
-            );
+            prefValue = preferences.getString(prefKey, null);
+            if (prefValue != null) {
+                return Pair.valueOf(prefValue);
+            }
         }
-        return preferredPair != null ? preferredPair : BTC_EUR_PAIR;
+        return null;
     }
 
     private void createFromItemsViews(View view) {
