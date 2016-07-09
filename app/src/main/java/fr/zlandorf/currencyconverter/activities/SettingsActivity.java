@@ -148,6 +148,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             }
             listPreference.setEntries(entries);
             listPreference.setEntryValues(entryValues);
+
+            if (!pairs.isEmpty()) {
+                listPreference.setDefaultValue(pairs.get(0).toString());
+            }
         }
 
         @Override
