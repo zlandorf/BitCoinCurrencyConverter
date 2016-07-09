@@ -3,6 +3,7 @@ package fr.zlandorf.currencyconverter.tasks.rates;
 import android.util.Log;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 
 import org.json.JSONObject;
 
@@ -23,16 +24,15 @@ import fr.zlandorf.currencyconverter.tasks.RetrieveTask;
  */
 public class KrakenRetrieveTask extends RetrieveTask {
 
-    protected static final String[] PAIRS_TO_RETRIEVE = new String[]{
-        KrakenPair.BTC_EUR.getId(),
-        KrakenPair.BTC_USD.getId(),
-        KrakenPair.BTC_CAD.getId(),
-        KrakenPair.BTC_LTC.getId(),
-        KrakenPair.LTC_EUR.getId(),
-        KrakenPair.LTC_USD.getId()
-    };
+    protected static List<String> getPairIds() {
+        List<String> ids = Lists.newArrayList();
+        for (KrakenPair krakenPair : KrakenPair.values()) {
+            ids.add(krakenPair.getId());
+        }
+        return ids;
+    }
 
-    protected static final String KRAKEN_URL = "https://api.kraken.com/0/public/Ticker?pair=" + Joiner.on(",").join(PAIRS_TO_RETRIEVE);
+    protected static final String KRAKEN_URL = "https://api.kraken.com/0/public/Ticker?pair=" + Joiner.on(",").join(getPairIds());
 
     public KrakenRetrieveTask(RetrieveTaskListener listener, HttpService httpService) {
         super(listener, httpService);

@@ -8,6 +8,8 @@ public enum  Currency {
     LTC("LTC"),
     GBP("GBP"),
     CNY("CNY"),
+    ETH("ETC"),
+    JPY("JPY"),
     mBTC("mBTC");
 
     private String value;
