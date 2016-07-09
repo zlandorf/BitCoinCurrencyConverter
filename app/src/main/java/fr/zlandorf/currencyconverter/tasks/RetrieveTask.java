@@ -5,7 +5,7 @@ import android.util.Log;
 
 import java.util.List;
 
-import fr.zlandorf.currencyconverter.models.entities.Exchange;
+import fr.zlandorf.currencyconverter.models.exchanges.Exchange;
 import fr.zlandorf.currencyconverter.models.entities.Rate;
 import fr.zlandorf.currencyconverter.services.HttpService;
 
@@ -18,8 +18,10 @@ public abstract class RetrieveTask extends AsyncTask<Void, Void, List<Rate>> {
 
     protected RetrieveTaskListener listener;
     protected HttpService httpService;
+    protected Exchange exchange;
 
-    protected RetrieveTask(RetrieveTaskListener listener, HttpService httpService) {
+    protected RetrieveTask(Exchange exchange, RetrieveTaskListener listener, HttpService httpService) {
+        this.exchange = exchange;
         this.listener = listener;
         this.httpService = httpService;
     }
@@ -38,7 +40,9 @@ public abstract class RetrieveTask extends AsyncTask<Void, Void, List<Rate>> {
      */
     public abstract List<Rate> retrieveRates() throws Exception;
 
-    public abstract Exchange getExchange();
+    public Exchange getExchange() {
+        return exchange;
+    }
 
     @Override
     protected void onPostExecute(List<Rate> rates) {

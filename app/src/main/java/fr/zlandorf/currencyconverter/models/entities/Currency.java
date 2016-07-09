@@ -8,7 +8,7 @@ public enum  Currency {
     LTC("LTC"),
     GBP("GBP"),
     CNY("CNY"),
-    ETH("ETC"),
+    ETH("ETH"),
     JPY("JPY"),
     mBTC("mBTC");
 

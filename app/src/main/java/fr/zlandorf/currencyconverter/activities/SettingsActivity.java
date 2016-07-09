@@ -16,7 +16,7 @@ import android.view.MenuItem;
 import fr.zlandorf.currencyconverter.AnalyticsApplication;
 import fr.zlandorf.currencyconverter.R;
 import fr.zlandorf.currencyconverter.models.entities.Currency;
-import fr.zlandorf.currencyconverter.models.entities.Exchange;
+import fr.zlandorf.currencyconverter.models.exchanges.Exchange;
 import fr.zlandorf.currencyconverter.models.entities.Pair;
 import fr.zlandorf.currencyconverter.repositories.ExchangeRepository;
 
@@ -37,7 +37,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         tracker = ((AnalyticsApplication) getApplication()).getDefaultTracker();
 
         PreferenceFragment prefsFragment = new PrefsFragment();
-        prefsFragment.setArguments(getIntent().getExtras());
         getFragmentManager()
             .beginTransaction()
             .replace(android.R.id.content, prefsFragment)
@@ -123,7 +122,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         private void initPairListPreference(Exchange exchange, ListPreference listPreference) {
             List<Pair> pairs = Lists.newArrayList();
 
-            for (Pair pair : exchange.getPairs()) {
+            for (Pair pair : exchange.getPairRepository().getPairs()) {
                 pairs.add(pair);
                 pairs.add(pair.invert());
 

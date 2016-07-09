@@ -23,7 +23,6 @@ import android.widget.Toast;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import fr.zlandorf.currencyconverter.AnalyticsApplication;
@@ -31,14 +30,12 @@ import fr.zlandorf.currencyconverter.R;
 import fr.zlandorf.currencyconverter.fragments.ConverterFragment;
 import fr.zlandorf.currencyconverter.fragments.RateListFragment;
 import fr.zlandorf.currencyconverter.fragments.RatesTaskFragment;
-import fr.zlandorf.currencyconverter.models.entities.Exchange;
-import fr.zlandorf.currencyconverter.models.entities.Pair;
 import fr.zlandorf.currencyconverter.models.entities.Rate;
+import fr.zlandorf.currencyconverter.models.exchanges.Exchange;
 import fr.zlandorf.currencyconverter.repositories.ExchangeRepository;
 import fr.zlandorf.currencyconverter.tasks.RetrieveTask;
 
 public class HomeActivity extends AppCompatActivity implements ConverterFragment.OnFragmentInteractionListener, RetrieveTask.RetrieveTaskListener, RateListFragment.RateListListener {
-    public static final String AVAILABLE_PAIRS_EXTRA = "available_pairs";
     private static final String RATES_TASK_FRAGMENT = "rates_task_fragment";
     private static final String SCREEN_NAME = "Home_screen";
 
@@ -101,7 +98,6 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
                 }
             }
         }
-
     }
 
     private void selectPreferredExchange() {
@@ -149,8 +145,6 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Intent intent = new Intent(this, SettingsActivity.class);
-            ArrayList<Pair> availablePairs = ((ConverterFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_converter)).getAvailablePairs();
-            intent.putParcelableArrayListExtra(AVAILABLE_PAIRS_EXTRA, availablePairs);
             startActivity(intent);
 
             return true;

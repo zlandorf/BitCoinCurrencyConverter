@@ -3,9 +3,11 @@ package fr.zlandorf.currencyconverter.tasks.rates;
 import fr.zlandorf.currencyconverter.models.entities.Currency;
 import fr.zlandorf.currencyconverter.models.entities.Pair;
 import fr.zlandorf.currencyconverter.models.entities.Rate;
+import fr.zlandorf.currencyconverter.models.exchanges.Exchange;
+import fr.zlandorf.currencyconverter.models.exchanges.Yahoo;
 import fr.zlandorf.currencyconverter.services.HttpService;
-import fr.zlandorf.currencyconverter.tasks.rates.YahooRetrieveTask;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -24,9 +26,16 @@ public class YahooRetrieveTaskTest {
 
     @Mock private HttpService httpService;
 
+    private Exchange exchange;
+
+    @Before
+    public void setup() {
+        exchange = new Yahoo();
+    }
+
     @Test
     public void testRetrieveRatesValidUrl() throws Exception {
-        new YahooRetrieveTask(null, httpService).retrieveRates();
+        new YahooRetrieveTask(exchange, null, httpService).retrieveRates();
 
         verify(httpService).request(matches("http://download\\.finance\\.yahoo\\.com/d/quotes\\.csv\\?s=[A-Z]{6}=X(,[A-Z]{6}=X)*+&f=sl1&e=\\.csv"));
     }
@@ -36,7 +45,7 @@ public class YahooRetrieveTaskTest {
         when(httpService.request(anyString()))
             .thenReturn(null);
 
-        List<Rate> rates = new YahooRetrieveTask(null, httpService).retrieveRates();
+        List<Rate> rates = new YahooRetrieveTask(exchange, null, httpService).retrieveRates();
 
         assertThat(rates).isEmpty();
     }
@@ -46,7 +55,7 @@ public class YahooRetrieveTaskTest {
         when(httpService.request(anyString()))
             .thenReturn("\"EURUSD=X\",1.0884\n\"EURCAD=X\",1.4541\n\"EURGBP=X\",0.7202\n\"EURCNY=X\",6.9682\n\"USDCAD=X\",1.3361\n\"USDGBP=X\",0.6617\n\"USDCNY=X\",6.4025\n\"CADGBP=X\",0.4953\n\"CADCNY=X\",4.7919\n\"GBPCNY=X\",9.6751\n");
 
-        List<Rate> rates = new YahooRetrieveTask(null, httpService).retrieveRates();
+        List<Rate> rates = new YahooRetrieveTask(exchange, null, httpService).retrieveRates();
 
         assertThat(rates).isNotNull().isNotEmpty();
         // number of pairs returned by the mock
@@ -58,7 +67,7 @@ public class YahooRetrieveTaskTest {
         when(httpService.request(anyString()))
             .thenReturn("\"EURUSD=X\",1.0884");
 
-        List<Rate> rates = new YahooRetrieveTask(null, httpService).retrieveRates();
+        List<Rate> rates = new YahooRetrieveTask(exchange, null, httpService).retrieveRates();
 
         assertThat(rates)
             .isNotNull()

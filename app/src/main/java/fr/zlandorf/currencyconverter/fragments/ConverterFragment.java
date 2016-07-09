@@ -17,8 +17,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.google.common.collect.Lists;
-
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -29,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import fr.zlandorf.currencyconverter.R;
 import fr.zlandorf.currencyconverter.models.entities.Currency;
-import fr.zlandorf.currencyconverter.models.entities.Exchange;
+import fr.zlandorf.currencyconverter.models.exchanges.Exchange;
 import fr.zlandorf.currencyconverter.models.entities.Pair;
 import fr.zlandorf.currencyconverter.models.entities.Rate;
 import fr.zlandorf.currencyconverter.tasks.RetrieveTask;
@@ -44,7 +42,6 @@ import fr.zlandorf.currencyconverter.tasks.RetrieveTask;
  */
 public class ConverterFragment extends Fragment {
     private static final double BITCOIN_TO_MBTC_RATIO = 1000.;
-    private static final Pair BTC_EUR_PAIR = new Pair(Currency.BTC, Currency.EUR);
 
     private OnFragmentInteractionListener mListener;
 
@@ -63,8 +60,6 @@ public class ConverterFragment extends Fragment {
     private TextView mToText;
 
     private DecimalFormat mDecimalFormatter;
-
-    private boolean hasUserInteracted = false;
 
     private Exchange currentExchange = null;
 
@@ -90,14 +85,6 @@ public class ConverterFragment extends Fragment {
         mToCurrencies = new ArrayList<>();
         mPairToRateMap = new ConcurrentHashMap<>();
         mDecimalFormatter = new DecimalFormat("#,##0.0####", new DecimalFormatSymbols(Locale.ENGLISH));
-    }
-
-    public ArrayList<Pair> getAvailablePairs() {
-        ArrayList<Pair> pairs = Lists.newArrayList();
-        for (Rate rate : mPairToRateMap.values()) {
-            pairs.add(rate.getPair());
-        }
-        return pairs;
     }
 
     @Override
@@ -190,9 +177,8 @@ public class ConverterFragment extends Fragment {
     private Pair getPreferredPair(Exchange exchange) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String prefKey = String.format(getString(R.string.pref_pair_key_template), exchange.getName());
-        String prefValue = null;
         if (preferences != null) {
-            prefValue = preferences.getString(prefKey, null);
+            String prefValue = preferences.getString(prefKey, null);
             if (prefValue != null) {
                 return Pair.valueOf(prefValue);
             }
@@ -220,7 +206,6 @@ public class ConverterFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                hasUserInteracted = true;
                 updateConversion();
             }
         });

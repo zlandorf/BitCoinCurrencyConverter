@@ -5,7 +5,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
-import fr.zlandorf.currencyconverter.models.entities.Exchange;
+import fr.zlandorf.currencyconverter.models.exchanges.Exchange;
 import fr.zlandorf.currencyconverter.services.HttpService;
 import fr.zlandorf.currencyconverter.tasks.RetrieveTask;
 
@@ -54,7 +54,9 @@ public class RatesTaskFragment extends Fragment {
             }
             mTask = null;
         }
-        mTask = exchange.getRetrieveTaskClass().getConstructor(RetrieveTask.RetrieveTaskListener.class, HttpService.class).newInstance(mListener, httpService);
+        mTask = exchange.getRetrieveTaskClass()
+            .getConstructor(Exchange.class, RetrieveTask.RetrieveTaskListener.class, HttpService.class )
+            .newInstance(exchange, mListener, httpService);
         mTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
