@@ -15,12 +15,6 @@ public class BitfinexRetrieveTask extends RetrieveTask {
 
     private static final String BITFINEX_URL = "https://api.bitfinex.com/v1/pubticker/";
 
-    protected static final BitfinexPair[] PAIRS_TO_RETRIEVE = new BitfinexPair[]{
-        BitfinexPair.BTC_USD,
-        BitfinexPair.LTC_USD,
-        BitfinexPair.LTC_BTC
-    };
-
     public BitfinexRetrieveTask(RetrieveTaskListener listener, HttpService httpService) {
         super(listener, httpService);
     }
@@ -33,7 +27,7 @@ public class BitfinexRetrieveTask extends RetrieveTask {
     @Override
     public List<Rate> retrieveRates() throws Exception {
         List<Rate> rates = Lists.newArrayList();
-        for (BitfinexPair bitfinexPair : PAIRS_TO_RETRIEVE) {
+        for (BitfinexPair bitfinexPair : BitfinexPair.values()) {
             String rawResponse = httpService.request(BITFINEX_URL + bitfinexPair.getId());
             if (rawResponse != null) {
                 double value = Double.valueOf(new JSONObject(rawResponse).getString("last_price"));

@@ -9,6 +9,8 @@ import fr.zlandorf.currencyconverter.models.entities.Pair;
 
 public enum BitfinexPair {
     BTC_USD("btcusd", new Pair(Currency.BTC, Currency.USD)),
+    ETH_USD("ethusd", new Pair(Currency.ETH, Currency.USD)),
+    ETH_BTC("ethbtc", new Pair(Currency.ETH, Currency.BTC)),
     LTC_USD("ltcusd", new Pair(Currency.LTC, Currency.USD)),
     LTC_BTC("ltcbtc", new Pair(Currency.LTC, Currency.BTC));
 

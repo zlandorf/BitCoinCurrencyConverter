@@ -14,6 +14,7 @@ import fr.zlandorf.currencyconverter.services.HttpService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.contains;
 import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -51,10 +52,9 @@ public class BitfinexRetrieveTaskTest {
 
     @Test
     public void testRetrieveTasks() throws Exception {
-        when(httpService.request(anyString()))
-            .thenReturn("{\"last_price\" : \"459.47\"}")
-            .thenReturn("{\"last_price\" : \"3.7199\"}")
-            .thenReturn("{\"last_price\" : \"0.0081\"}");
+        when(httpService.request(contains(BitfinexPair.BTC_USD.getId()))).thenReturn("{\"last_price\" : \"459.47\"}");
+        when(httpService.request(contains(BitfinexPair.LTC_USD.getId()))).thenReturn("{\"last_price\" : \"3.7199\"}");
+        when(httpService.request(contains(BitfinexPair.LTC_BTC.getId()))).thenReturn("{\"last_price\" : \"0.0081\"}");
 
         List<Rate> rates = new BitfinexRetrieveTask(null, httpService).retrieveRates();
 
