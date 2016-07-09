@@ -2,14 +2,15 @@ package fr.zlandorf.currencyconverter.tasks.rates;
 
 import android.util.Log;
 
-import fr.zlandorf.currencyconverter.models.entities.Provider;
-import fr.zlandorf.currencyconverter.models.entities.Rate;
-import fr.zlandorf.currencyconverter.services.HttpService;
-import fr.zlandorf.currencyconverter.tasks.RetrieveTask;
 import com.google.common.base.Joiner;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import fr.zlandorf.currencyconverter.models.entities.Exchange;
+import fr.zlandorf.currencyconverter.models.entities.Rate;
+import fr.zlandorf.currencyconverter.services.HttpService;
+import fr.zlandorf.currencyconverter.tasks.RetrieveTask;
 
 /**
  * This task retrieves fiat exchange rates from Yahoo
@@ -42,8 +43,8 @@ public class YahooRetrieveTask extends RetrieveTask {
     }
 
     @Override
-    public Provider getProvider() {
-        return Provider.Yahoo;
+    public Exchange getExchange() {
+        return Exchange.Yahoo;
     }
 
     public List<Rate> retrieveRates() throws Exception {

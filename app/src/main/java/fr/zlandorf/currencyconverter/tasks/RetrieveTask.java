@@ -3,17 +3,17 @@ package fr.zlandorf.currencyconverter.tasks;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import fr.zlandorf.currencyconverter.models.entities.Provider;
+import java.util.List;
+
+import fr.zlandorf.currencyconverter.models.entities.Exchange;
 import fr.zlandorf.currencyconverter.models.entities.Rate;
 import fr.zlandorf.currencyconverter.services.HttpService;
-
-import java.util.List;
 
 public abstract class RetrieveTask extends AsyncTask<Void, Void, List<Rate>> {
 
     public interface RetrieveTaskListener {
-        void onTaskFinished(Provider provider, List<Rate> rates);
-        void onTaskFailed(Provider provider);
+        void onTaskFinished(Exchange exchange, List<Rate> rates);
+        void onTaskFailed(Exchange exchange);
     }
 
     protected RetrieveTaskListener listener;
@@ -38,13 +38,13 @@ public abstract class RetrieveTask extends AsyncTask<Void, Void, List<Rate>> {
      */
     public abstract List<Rate> retrieveRates() throws Exception;
 
-    public abstract Provider getProvider();
+    public abstract Exchange getExchange();
 
     @Override
     protected void onPostExecute(List<Rate> rates) {
         super.onPostExecute(rates);
         if (rates != null && listener != null) {
-            listener.onTaskFinished(getProvider(), rates);
+            listener.onTaskFinished(getExchange(), rates);
         }
     }
 
@@ -54,7 +54,7 @@ public abstract class RetrieveTask extends AsyncTask<Void, Void, List<Rate>> {
             return retrieveRates();
         } catch (Exception e) {
             if (listener != null) {
-                listener.onTaskFailed(getProvider());
+                listener.onTaskFailed(getExchange());
             }
             Log.e("RETRIEVE_TASK", "Exception retrieving rates : [" + e.getMessage() + "] task : ["+getClass().getSimpleName()+"]");
             e.printStackTrace();

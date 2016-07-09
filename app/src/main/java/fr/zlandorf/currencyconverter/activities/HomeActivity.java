@@ -19,6 +19,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import fr.zlandorf.currencyconverter.AnalyticsApplication;
 import fr.zlandorf.currencyconverter.R;
 import fr.zlandorf.currencyconverter.fragments.ConverterFragment;
@@ -26,15 +32,9 @@ import fr.zlandorf.currencyconverter.fragments.RateListFragment;
 import fr.zlandorf.currencyconverter.fragments.RatesTaskFragment;
 import fr.zlandorf.currencyconverter.models.entities.Exchange;
 import fr.zlandorf.currencyconverter.models.entities.Pair;
-import fr.zlandorf.currencyconverter.models.entities.Provider;
 import fr.zlandorf.currencyconverter.models.entities.Rate;
 import fr.zlandorf.currencyconverter.repositories.ExchangeRepository;
 import fr.zlandorf.currencyconverter.tasks.RetrieveTask;
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class HomeActivity extends AppCompatActivity implements ConverterFragment.OnFragmentInteractionListener, RetrieveTask.RetrieveTaskListener, RateListFragment.RateListListener {
     public static final String AVAILABLE_PAIRS_EXTRA = "available_pairs";
@@ -94,8 +94,8 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
                 try {
                     mRatesTaskFragment.execute(exchange);
                 } catch (Exception e) {
-                    Log.e("RATE_RETRIEVAL", "Failed to retrieve tasks for " + exchange.getProvider() + " : " + e.getMessage());
-                    onTaskFailed(exchange.getProvider());
+                    Log.e("RATE_RETRIEVAL", "Failed to retrieve tasks for " + exchange.getName() + " : " + e.getMessage());
+                    onTaskFailed(exchange);
                 }
             }
         }
@@ -152,7 +152,7 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
     }
 
     @Override
-    public void onTaskFinished(Provider provider, List<Rate> rates) {
+    public void onTaskFinished(Exchange exchange, List<Rate> rates) {
         Log.d("RATE_RETRIEVAL", String.format("Rates received : %s\n", rates.size()));
         // Hide the progress bar
         findViewById(R.id.progress_bar_container).setVisibility(View.GONE);
@@ -172,11 +172,11 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
     }
 
     @Override
-    public void onTaskFailed(final Provider provider) {
+    public void onTaskFailed(final Exchange exchange) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-            Toast.makeText(getApplicationContext(), getString(R.string.rate_retrieval_failed, provider), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), getString(R.string.rate_retrieval_failed, exchange), Toast.LENGTH_SHORT).show();
             }
         });
     }

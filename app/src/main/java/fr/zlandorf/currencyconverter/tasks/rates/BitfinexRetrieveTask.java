@@ -6,7 +6,7 @@ import org.json.JSONObject;
 
 import java.util.List;
 
-import fr.zlandorf.currencyconverter.models.entities.Provider;
+import fr.zlandorf.currencyconverter.models.entities.Exchange;
 import fr.zlandorf.currencyconverter.models.entities.Rate;
 import fr.zlandorf.currencyconverter.services.HttpService;
 import fr.zlandorf.currencyconverter.tasks.RetrieveTask;
@@ -26,8 +26,8 @@ public class BitfinexRetrieveTask extends RetrieveTask {
     }
 
     @Override
-    public Provider getProvider() {
-        return Provider.Bitfinex;
+    public Exchange getExchange() {
+        return Exchange.Bitfinex;
     }
 
     @Override

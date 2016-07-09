@@ -2,10 +2,6 @@ package fr.zlandorf.currencyconverter.tasks.rates;
 
 import android.util.Log;
 
-import fr.zlandorf.currencyconverter.models.entities.Provider;
-import fr.zlandorf.currencyconverter.models.entities.Rate;
-import fr.zlandorf.currencyconverter.services.HttpService;
-import fr.zlandorf.currencyconverter.tasks.RetrieveTask;
 import com.google.common.base.Joiner;
 
 import org.json.JSONObject;
@@ -13,6 +9,11 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import fr.zlandorf.currencyconverter.models.entities.Exchange;
+import fr.zlandorf.currencyconverter.models.entities.Rate;
+import fr.zlandorf.currencyconverter.services.HttpService;
+import fr.zlandorf.currencyconverter.tasks.RetrieveTask;
 
 /**
  * This Task retrieves crypto/fiat exchange rates from Kraken's public ticker
@@ -38,8 +39,8 @@ public class KrakenRetrieveTask extends RetrieveTask {
     }
 
     @Override
-    public Provider getProvider() {
-        return Provider.Kraken;
+    public Exchange getExchange() {
+        return Exchange.Kraken;
     }
 
     public List<Rate> retrieveRates() throws Exception {
