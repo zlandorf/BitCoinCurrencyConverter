@@ -1,5 +1,6 @@
 package fr.zlandorf.currencyconverter.activities;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -43,6 +44,8 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
     private RatesTaskFragment mRatesTaskFragment;
     private Tracker tracker;
 
+    private ProgressDialog progressDialog;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,20 +77,17 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
             // Create the task fragment that will retrieve rates
             mRatesTaskFragment = RatesTaskFragment.newInstance();
             fm.beginTransaction().add(mRatesTaskFragment, RATES_TASK_FRAGMENT).commit();
+
         }
     }
 
     public void retrieveRates() {
-        // Show the progress bar while retrieving the rates for the first time
-        findViewById(R.id.progress_bar_container).setVisibility(View.VISIBLE);
-        findViewById(R.id.fragments_container).setVisibility(View.GONE);
-
         // If there is no network available, show an error message
         if (!isNetworkAvailable()) {
             findViewById(R.id.spinner_progress_bar).setVisibility(View.GONE);
             findViewById(R.id.no_internet_text).setVisibility(View.VISIBLE);
+            findViewById(R.id.fragments_container).setVisibility(View.GONE);
         } else {
-
             Exchange exchange = (Exchange) exchangeSelector.getSelectedItem();
             if (exchange != null) {
                 try {
@@ -154,7 +154,7 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
             if (!isNetworkAvailable()) {
                 Toast.makeText(getApplicationContext(), R.string.no_internet, Toast.LENGTH_LONG).show();
             } else if (mRatesTaskFragment != null) {
-                Toast.makeText(getApplicationContext(), R.string.refreshing, Toast.LENGTH_SHORT).show();
+                progressDialog = ProgressDialog.show(this, null, getString(R.string.refreshing), true);
                 retrieveRates();
             }
             return true;
@@ -172,8 +172,12 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
     public void onTaskFinished(Exchange exchange, List<Rate> rates) {
         Log.d("RATE_RETRIEVAL", String.format("Rates received : %s\n", rates.size()));
         // Hide the progress bar
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+        }
         findViewById(R.id.progress_bar_container).setVisibility(View.GONE);
         findViewById(R.id.fragments_container).setVisibility(View.VISIBLE);
+        findViewById(R.id.no_internet_text).setVisibility(View.GONE);
 
         FragmentManager fm = getSupportFragmentManager();
         ConverterFragment converterFragment = (ConverterFragment) fm.findFragmentById(R.id.fragment_converter);
@@ -190,6 +194,7 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
 
     @Override
     public void onTaskFailed(final Exchange exchange) {
+        progressDialog.dismiss();
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -213,6 +218,10 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
 
         @Override
         public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+            findViewById(R.id.progress_bar_container).setVisibility(View.VISIBLE);
+            findViewById(R.id.fragments_container).setVisibility(View.GONE);
+            findViewById(R.id.no_internet_text).setVisibility(View.GONE);
+
             retrieveRates();
         }
 
