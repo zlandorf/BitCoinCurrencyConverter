@@ -3,6 +3,7 @@ package fr.zlandorf.currencyconverter.tasks.rates;
 import android.util.Log;
 
 import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,21 +23,15 @@ import fr.zlandorf.currencyconverter.tasks.RetrieveTask;
  */
 public class YahooRetrieveTask extends RetrieveTask {
 
-    protected static final String[] PAIRS_TO_RETRIEVE = new String[]{
-        YahooPair.EUR_USD.getId(),
-        YahooPair.EUR_CAD.getId(),
-        YahooPair.EUR_GBP.getId(),
-        YahooPair.EUR_CNY.getId(),
-        YahooPair.USD_CAD.getId(),
-        YahooPair.USD_GBP.getId(),
-        YahooPair.USD_CNY.getId(),
-        YahooPair.CAD_GBP.getId(),
-        YahooPair.CAD_CNY.getId(),
-        YahooPair.GBP_CNY.getId(),
-    };
+    protected static List<String> getPairIds() {
+        List<String> ids = Lists.newArrayList();
+        for (YahooPair yahooPair : YahooPair.values()) {
+            ids.add(yahooPair.getId());
+        }
+        return ids;
+    }
 
-    //EUR USD , EUR CNY , EUR GBP , USD CNY , USD GBP , GBP CNY
-    protected static String YAHOO_URL = "http://download.finance.yahoo.com/d/quotes.csv?s=" + Joiner.on(",").join(PAIRS_TO_RETRIEVE) + "&f=sl1&e=.csv";
+    protected static String YAHOO_URL = "http://download.finance.yahoo.com/d/quotes.csv?s=" + Joiner.on(",").join(getPairIds()) + "&f=sl1&e=.csv";
 
     public YahooRetrieveTask(RetrieveTaskListener listener, HttpService httpService) {
         super(listener, httpService);
