@@ -9,6 +9,8 @@
     <string name="refreshing">Refreshing rates</string>
     <string name="rate_retrieval_failed">Failed to retrieve rates from %1$s</string>
     <string name="title_activity_settings">Settings</string>
+    <string name="title_exchange">Exchange :</string>
+
 
     <!-- Strings related to Settings -->
 

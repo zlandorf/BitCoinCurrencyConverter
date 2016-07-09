@@ -1,21 +1,39 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginLeft="@dimen/activity_horizontal_margin"
     android:layout_marginRight="@dimen/activity_horizontal_margin"
     android:layout_marginTop="@dimen/activity_vertical_margin"
-    android:layout_marginBottom="@dimen/activity_vertical_margin" tools:context=".HomeActivity">
+    android:layout_marginBottom="@dimen/activity_vertical_margin" tools:context=".HomeActivity"
+    android:orientation="vertical"
+>
 
-    <Spinner
-        android:id="@+id/exchange_selector"
+    <LinearLayout
+        android:id="@+id/exchange_selector_wrapper"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-    />
+        android:orientation="horizontal"
+        android:padding="10dp"
+        android:paddingBottom="20dp"
+    >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Exchange :"
+        />
+
+        <Spinner
+            android:id="@+id/exchange_selector"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+        />
+
+    </LinearLayout>
+
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_below="@+id/exchange_selector"
         android:gravity="center"
         android:orientation="vertical"
         android:id="@+id/progress_bar_container"
@@ -39,7 +57,6 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/exchange_selector"
         android:gravity="center"
         android:orientation="vertical"
         android:id="@+id/fragments_container"
@@ -67,4 +84,4 @@
             tools:layout="@layout/fragment_rate_list" />
     </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>
