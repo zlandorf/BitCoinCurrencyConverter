@@ -2,6 +2,7 @@ package fr.zlandorf.currencyconverter.tasks.rates;
 
 import android.util.Log;
 
+import fr.zlandorf.currencyconverter.models.entities.Provider;
 import fr.zlandorf.currencyconverter.models.entities.Rate;
 import fr.zlandorf.currencyconverter.services.HttpService;
 import fr.zlandorf.currencyconverter.tasks.RetrieveTask;
@@ -37,8 +38,8 @@ public class KrakenRetrieveTask extends RetrieveTask {
     }
 
     @Override
-    public String getProviderName() {
-        return "Kraken";
+    public Provider getProvider() {
+        return Provider.Kraken;
     }
 
     public List<Rate> retrieveRates() throws Exception {

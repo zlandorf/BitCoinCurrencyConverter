@@ -26,6 +26,7 @@ import fr.zlandorf.currencyconverter.fragments.RateListFragment;
 import fr.zlandorf.currencyconverter.fragments.RatesTaskFragment;
 import fr.zlandorf.currencyconverter.models.entities.Exchange;
 import fr.zlandorf.currencyconverter.models.entities.Pair;
+import fr.zlandorf.currencyconverter.models.entities.Provider;
 import fr.zlandorf.currencyconverter.models.entities.Rate;
 import fr.zlandorf.currencyconverter.repositories.ExchangeRepository;
 import fr.zlandorf.currencyconverter.tasks.RetrieveTask;
@@ -93,8 +94,8 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
                 try {
                     mRatesTaskFragment.execute(exchange);
                 } catch (Exception e) {
-                    Log.e("RATE_RETRIEVAL", "Failed to retrieve tasks for " + exchange.getName() + " : " + e.getMessage());
-                    onTaskFailed(exchange.getName());
+                    Log.e("RATE_RETRIEVAL", "Failed to retrieve tasks for " + exchange.getProvider() + " : " + e.getMessage());
+                    onTaskFailed(exchange.getProvider());
                 }
             }
         }
@@ -151,7 +152,7 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
     }
 
     @Override
-    public void onTaskFinished(List<Rate> rates) {
+    public void onTaskFinished(Provider provider, List<Rate> rates) {
         Log.d("RATE_RETRIEVAL", String.format("Rates received : %s\n", rates.size()));
         // Hide the progress bar
         findViewById(R.id.progress_bar_container).setVisibility(View.GONE);
@@ -171,7 +172,7 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
     }
 
     @Override
-    public void onTaskFailed(final String provider) {
+    public void onTaskFailed(final Provider provider) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

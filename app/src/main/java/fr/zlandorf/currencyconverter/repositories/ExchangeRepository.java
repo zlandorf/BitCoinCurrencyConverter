@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import java.util.List;
 
 import fr.zlandorf.currencyconverter.models.entities.Exchange;
+import fr.zlandorf.currencyconverter.models.entities.Provider;
 import fr.zlandorf.currencyconverter.tasks.rates.BitfinexRetrieveTask;
 import fr.zlandorf.currencyconverter.tasks.rates.KrakenRetrieveTask;
 import fr.zlandorf.currencyconverter.tasks.rates.YahooRetrieveTask;
@@ -14,9 +15,9 @@ public class ExchangeRepository {
 
     public ExchangeRepository() {
         this.exchanges = Lists.newArrayList(
-            new Exchange("Kraken", KrakenRetrieveTask.class),
-            new Exchange("Bitfinex", BitfinexRetrieveTask.class),
-            new Exchange("Yahoo", YahooRetrieveTask.class)
+            new Exchange(Provider.Kraken, KrakenRetrieveTask.class),
+            new Exchange(Provider.Bitfinex, BitfinexRetrieveTask.class),
+            new Exchange(Provider.Yahoo, YahooRetrieveTask.class)
         );
     }
 

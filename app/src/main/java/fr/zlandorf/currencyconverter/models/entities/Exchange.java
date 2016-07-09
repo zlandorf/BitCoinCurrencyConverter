@@ -3,16 +3,16 @@ package fr.zlandorf.currencyconverter.models.entities;
 import fr.zlandorf.currencyconverter.tasks.RetrieveTask;
 
 public class Exchange {
-    private String name;
+    private Provider provider;
     private Class<? extends RetrieveTask> retrieveTaskClass;
 
-    public Exchange(String name, Class<? extends RetrieveTask> retrieveTaskClass) {
-        this.name = name;
+    public Exchange(Provider provider, Class<? extends RetrieveTask> retrieveTaskClass) {
+        this.provider = provider;
         this.retrieveTaskClass = retrieveTaskClass;
     }
 
-    public String getName() {
-        return name;
+    public Provider getProvider() {
+        return provider;
     }
 
     public Class<? extends RetrieveTask> getRetrieveTaskClass() {
@@ -21,6 +21,6 @@ public class Exchange {
 
     @Override
     public String toString() {
-        return name;
+        return provider.getValue();
     }
 }

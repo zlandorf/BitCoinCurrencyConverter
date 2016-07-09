@@ -2,6 +2,7 @@ package fr.zlandorf.currencyconverter.tasks.rates;
 
 import android.util.Log;
 
+import fr.zlandorf.currencyconverter.models.entities.Provider;
 import fr.zlandorf.currencyconverter.models.entities.Rate;
 import fr.zlandorf.currencyconverter.services.HttpService;
 import fr.zlandorf.currencyconverter.tasks.RetrieveTask;
@@ -41,8 +42,8 @@ public class YahooRetrieveTask extends RetrieveTask {
     }
 
     @Override
-    public String getProviderName() {
-        return "Yahoo";
+    public Provider getProvider() {
+        return Provider.Yahoo;
     }
 
     public List<Rate> retrieveRates() throws Exception {
