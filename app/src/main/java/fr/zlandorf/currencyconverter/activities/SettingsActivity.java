@@ -127,11 +127,15 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                 pairs.add(pair);
                 pairs.add(pair.invert());
 
+                Pair mBtcPair = null;
                 if (pair.getFrom().equals(Currency.BTC)) {
-                    pairs.add(new Pair(Currency.mBTC, pair.getTo()));
+                    mBtcPair = new Pair(Currency.mBTC, pair.getTo());
+                } else if (pair.getTo().equals(Currency.BTC)) {
+                    mBtcPair = new Pair(pair.getFrom(), Currency.mBTC);
                 }
-                if (pair.getTo().equals(Currency.BTC)) {
-                    pairs.add(new Pair(pair.getFrom(), Currency.mBTC));
+                if (mBtcPair != null) {
+                    pairs.add(mBtcPair);
+                    pairs.add(mBtcPair.invert());
                 }
             }
 
