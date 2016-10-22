@@ -10,7 +10,7 @@ public class KrakenRepository extends PairRepository {
         pairsById.put("XXBTZCAD", new Pair(Currency.BTC, Currency.CAD));
         pairsById.put("XXBTZGBP", new Pair(Currency.BTC, Currency.GBP));
         pairsById.put("XXBTZJPY", new Pair(Currency.BTC, Currency.JPY));
-        pairsById.put("XXBTXLTC", new Pair(Currency.BTC, Currency.LTC));
+        pairsById.put("XLTCXXBT", new Pair(Currency.LTC, Currency.BTC));
         pairsById.put("XLTCZEUR", new Pair(Currency.LTC, Currency.EUR));
         pairsById.put("XLTCZUSD", new Pair(Currency.LTC, Currency.USD));
         pairsById.put("XLTCZCAD", new Pair(Currency.LTC, Currency.CAD));
