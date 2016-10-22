@@ -27,5 +27,6 @@
     <string name="pref_category_pairs_key">pref_category_pairs</string>
 
     <string name="pref_pair_key_template">pref_%s_pair_key</string>
+    <string name="exchange_selector">Exchange :</string>
 
 </resources>
