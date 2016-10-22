@@ -1,4 +1,5 @@
 <resources>
     <color name="transparent">#00000000</color>
     <color name="grey">#aaaaaa</color>
+    <color name="white">#ffffff</color>
 </resources>

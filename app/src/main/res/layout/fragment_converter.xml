@@ -18,26 +18,26 @@
             android:layout_marginBottom="5dp">
 
             <Spinner
-                android:layout_width="0dp"
+                android:layout_width="80dp"
                 android:layout_height="match_parent"
                 android:id="@+id/convertFromSpinner"
-                android:layout_weight="2"
+                android:layout_weight="0"
                 android:spinnerMode="dropdown"
                 android:textAppearance="?android:attr/textAppearanceSmall"
+                style="@style/Widget.Spinner"
             />
 
             <EditText
-                android:layout_width="0dp"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:inputType="numberDecimal"
                 android:ems="10"
                 android:imeOptions="actionDone|flagNoExtractUi"
                 android:id="@+id/convertFromText"
-                android:layout_weight="7"
+                android:layout_weight="1"
                 android:layout_gravity="bottom"
-                android:singleLine="true"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-            />
+                android:maxLines="1"/>
         </LinearLayout>
 
         <LinearLayout
@@ -47,22 +47,23 @@
             android:baselineAligned="true">
 
             <Spinner
-                android:layout_width="0dp"
+                android:layout_width="80dp"
                 android:layout_height="match_parent"
                 android:id="@+id/convertToSpinner"
-                android:layout_weight="2"
+                android:layout_weight="0"
                 android:textAppearance="?android:attr/textAppearanceSmall"
+                style="@style/Widget.Spinner"
             />
 
             <TextView
-                android:layout_width="0dp"
+                android:layout_width="fill_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/convertToText"
-                android:layout_weight="7"
+                android:layout_weight="1"
                 android:layout_gravity="bottom"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                android:singleLine="true"
-                android:ellipsize="end" />
+                android:ellipsize="end"
+                android:maxLines="1"/>
 
         </LinearLayout>
     </LinearLayout>
