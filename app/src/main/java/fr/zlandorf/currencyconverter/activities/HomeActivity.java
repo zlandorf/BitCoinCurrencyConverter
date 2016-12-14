@@ -194,7 +194,9 @@ public class HomeActivity extends AppCompatActivity implements ConverterFragment
 
     @Override
     public void onTaskFailed(final Exchange exchange) {
-        progressDialog.dismiss();
+        if (progressDialog != null) {
+            progressDialog.dismiss();
+        }
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
